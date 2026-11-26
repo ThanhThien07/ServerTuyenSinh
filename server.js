@@ -6544,4 +6544,714 @@ function createApiHandler({ dbm, auth, realtime: rawRealtime, config, startTimeM
           data = buildReportDataset(dbm, parseReportParams(urlObj.searchParams));
         }
         const docxBuf = await generateRealDocxBuffer(data);
-... [truncated for diff preview]
+        dbm.appendAudit(null, { actor: user, action: 'EXPORT_REPORT_DOCX', entityType: 'report', entityId: snapshotId || null, summary: `Xuất báo cáo Word (.docx) kỳ ${data.meta.periodDisplay}`, ip });
+        return sendBuffer(
+          res, 200, docxBuf,
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          `Bao_Cao_Tuyen_Sinh_ITC_${data.meta.intakeYear}_${data.meta.periodType}.docx`
+        );
+      }
+
+      if (method === 'GET' && pathname === '/api/reports/export/xlsx') {
+        auth.requirePermission(user, 'can_export', 'Tài khoản không có quyền xuất báo cáo Excel.');
+        const snapshotId = urlObj.searchParams.get('snapshotId');
+        let data;
+        if (snapshotId) {
+          const snap = dbm.db.prepare('SELECT * FROM report_snapshots WHERE id = ?').get(snapshotId);
+          if (!snap) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy snapshot.' });
+          data = JSON.parse(snap.snapshot_data_json);
+        } else {
+          data = buildReportDataset(dbm, parseReportParams(urlObj.searchParams));
+        }
+        const xlsBuf = generateDynamicExcelBuffer(data);
+        dbm.appendAudit(null, { actor: user, action: 'EXPORT_REPORT_XLSX', entityType: 'report', entityId: snapshotId || null, summary: `Xuất báo cáo Excel (.xlsx) kỳ ${data.meta.periodDisplay}`, ip });
+        return sendBuffer(
+          res, 200, xlsBuf,
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          `Bao_Cao_Tuyen_Sinh_ITC_${data.meta.intakeYear}_${data.meta.periodType}.xlsx`
+        );
+      }
+
+      // Honest notification jobs
+      if (method === 'GET' && pathname === '/api/notifications') {
+        const items = dbm.db.prepare(`
+          SELECT n.*, u.full_name AS created_by_name
+          FROM notification_jobs n LEFT JOIN users u ON u.id = n.created_by_user_id
+          ORDER BY n.created_at DESC LIMIT 100
+        `).all();
+        return sendJson(res, 200, { items, smtpConfigured: config.smtpConfigured });
+      }
+      if (method === 'POST' && pathname === '/api/notifications') {
+        const body = await readJsonBody(req, 64 * 1024);
+        const channel = cleanString(body.channel || 'email', 20);
+        if (!['email', 'zalo_copy'].includes(channel)) throw validationError('Kênh thông báo không hợp lệ.');
+        const recipientName = cleanString(body.recipient_name || '', 160);
+        const subject = cleanString(body.subject || '', 300);
+        const content = cleanString(body.body || '', 5000);
+        if (!recipientName || !subject || !content) throw validationError('Cần đủ người nhận, tiêu đề và nội dung.');
+        const job = createNotificationJob(dbm, {
+          actor: user,
+          channel,
+          recipientName,
+          recipientAddress: cleanString(body.recipient_address || '', 200),
+          subject,
+          body: content,
+          ip
+        });
+        return sendJson(res, 201, { ok: true, job });
+      }
+
+      // --- M9: ADMIN, RBAC, STAFF, INTAKE YEARS, AUDIT, BACKUP/RESTORE ---
+      if (method === 'GET' && pathname === '/api/admin/users') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const rows = dbm.db.prepare(`
+          SELECT u.*, s.id AS staff_id, s.zalo_slot AS staff_zalo_slot, s.team AS staff_team
+          FROM users u LEFT JOIN staff s ON s.user_id = u.id
+          ORDER BY u.created_at ASC
+        `).all();
+        return sendJson(res, 200, { items: rows.map(r => auth.sanitizeUser(r)) });
+      }
+
+      if (method === 'POST' && pathname === '/api/admin/users') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const body = await readJsonBody(req, 32 * 1024);
+        const email = cleanString(body.email || '', 160).toLowerCase();
+        const fullName = cleanString(body.full_name || '', 160);
+        const password = cleanString(body.password || 'ItcStaff@2027!', 120);
+        const role = cleanString(body.role || ROLES.CONSULTANT, 30);
+        const scope = cleanString(body.scope || (role === ROLES.CONSULTANT ? SCOPES.OWN : SCOPES.ALL), 20);
+        if (!email || !fullName) throw validationError('Email và Họ tên không được trống.');
+        if (!VALID_ROLES.has(role)) throw validationError('Vai trò không hợp lệ.');
+        if (!VALID_SCOPES.has(scope)) throw validationError('Phạm vi dữ liệu không hợp lệ.');
+        if (password.length < 8) throw validationError('Mật khẩu phải ít nhất 8 ký tự.');
+
+        const exists = dbm.db.prepare('SELECT id FROM users WHERE LOWER(email) = ?').get(email);
+        if (exists) throw validationError('Email tài khoản đã tồn tại.');
+
+        const ts = nowIso();
+        const usrId = newId('usr');
+        const stfId = newId('stf');
+        const defaultTabs = role === ROLES.CONSULTANT ? [0, 1, 2, 3, 4, 5, 7, 10] : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+        const created = dbm.transaction((db) => {
+          db.prepare(`
+            INSERT INTO users (
+              id, email, password_hash, full_name, role, scope, active,
+              can_edit_kpi, can_export, can_delete, can_approve_reports, can_restore,
+              allowed_tabs_json, must_change_password, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, 0, ?, ?)
+          `).run(
+            usrId, email, hashPassword(password), fullName, role, scope,
+            body.can_edit_kpi ? 1 : (role !== ROLES.CONSULTANT ? 1 : 0),
+            body.can_export !== false ? 1 : 0,
+            body.can_delete ? 1 : (role === ROLES.SUPER_ADMIN ? 1 : 0),
+            body.can_approve_reports ? 1 : (role !== ROLES.CONSULTANT ? 1 : 0),
+            body.can_restore ? 1 : (role === ROLES.SUPER_ADMIN ? 1 : 0),
+            JSON.stringify(Array.isArray(body.allowed_tabs) ? body.allowed_tabs : defaultTabs),
+            ts, ts
+          );
+
+          // Automatically create linked Staff entity with stable ID (Scenario 15!)
+          db.prepare(`
+            INSERT INTO staff (id, user_id, full_name, email, zalo_slot, team, active, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)
+          `).run(
+            stfId, usrId, fullName, email,
+            cleanString(body.zalo_slot || '', 60),
+            cleanString(body.team || 'Tư vấn tuyển sinh', 100),
+            ts, ts
+          );
+
+          dbm.appendAudit(db, {
+            actor: user,
+            action: 'USER_CREATED',
+            entityType: 'user',
+            entityId: usrId,
+            summary: `Tạo tài khoản & nhân sự ${fullName} (${email}, role=${role}, scope=${scope})`,
+            detail: { usrId, stfId, role, scope },
+            ip
+          });
+
+          return auth.getUserWithStaff(usrId);
+        });
+
+        realtime.broadcastEvent({ entity: 'staff', action: 'record_created', id: stfId });
+        return sendJson(res, 201, { ok: true, user: created });
+      }
+
+      const usrMatch = pathname.match(/^\/api\/admin\/users\/([^/]+)$/);
+      if (usrMatch && method === 'PATCH') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const targetId = usrMatch[1];
+        const target = dbm.db.prepare('SELECT * FROM users WHERE id = ?').get(targetId);
+        if (!target) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tài khoản.' });
+
+        const body = await readJsonBody(req, 32 * 1024);
+        const nextRole = body.role !== undefined ? cleanString(body.role, 30) : target.role;
+        const nextActive = body.active !== undefined ? (body.active ? 1 : 0) : target.active;
+        const nextScope = body.scope !== undefined ? cleanString(body.scope, 20) : target.scope;
+        if (!VALID_ROLES.has(nextRole)) throw validationError('Vai trò không hợp lệ.');
+        if (!VALID_SCOPES.has(nextScope)) throw validationError('Phạm vi không hợp lệ.');
+
+        // Protect retaining AT LEAST ONE active Super Admin while allowing revoking a compromised admin!
+        if (target.role === ROLES.SUPER_ADMIN && (nextRole !== ROLES.SUPER_ADMIN || nextActive === 0)) {
+          const otherActiveAdmins = dbm.db.prepare(
+            "SELECT COUNT(*) AS cnt FROM users WHERE role = 'super_admin' AND active = 1 AND id != ?"
+          ).get(targetId).cnt;
+          if (otherActiveAdmins < 1) {
+            return sendJson(res, 400, {
+              error: 'LAST_SUPER_ADMIN',
+              message: 'Hệ thống phải giữ tối thiểu 01 Super Admin đang hoạt động.'
+            });
+          }
+        }
+
+        const ts = nowIso();
+        const nextName = body.full_name !== undefined ? cleanString(body.full_name, 160) : target.full_name;
+        const updated = dbm.transaction((db) => {
+          db.prepare(`
+            UPDATE users
+            SET full_name = ?, role = ?, scope = ?, active = ?,
+                can_edit_kpi = ?, can_export = ?, can_delete = ?, can_approve_reports = ?, can_restore = ?,
+                allowed_tabs_json = ?, updated_at = ?
+            WHERE id = ?
+          `).run(
+            nextName, nextRole, nextScope, nextActive,
+            body.can_edit_kpi !== undefined ? (body.can_edit_kpi ? 1 : 0) : target.can_edit_kpi,
+            body.can_export !== undefined ? (body.can_export ? 1 : 0) : target.can_export,
+            body.can_delete !== undefined ? (body.can_delete ? 1 : 0) : target.can_delete,
+            body.can_approve_reports !== undefined ? (body.can_approve_reports ? 1 : 0) : target.can_approve_reports,
+            body.can_restore !== undefined ? (body.can_restore ? 1 : 0) : target.can_restore,
+            body.allowed_tabs !== undefined ? JSON.stringify(body.allowed_tabs) : target.allowed_tabs_json,
+            ts, targetId
+          );
+
+          if (body.resetPassword && String(body.resetPassword).length >= 8) {
+            db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(hashPassword(body.resetPassword), targetId);
+          }
+
+          // Sync linked staff display name & zalo slot without changing stable staff.id!
+          db.prepare('UPDATE staff SET full_name = ?, active = ?, updated_at = ? WHERE user_id = ?')
+            .run(nextName, nextActive, ts, targetId);
+          if (body.zalo_slot !== undefined) {
+            db.prepare('UPDATE staff SET zalo_slot = ?, updated_at = ? WHERE user_id = ?')
+              .run(cleanString(body.zalo_slot, 60), ts, targetId);
+          }
+
+          // CRITICAL P0: Deactivating account immediately revokes all HTTP sessions & terminates open WS sockets!
+          if (nextActive === 0) {
+            auth.revokeAllUserSessions(targetId, db);
+          }
+
+          dbm.appendAudit(db, {
+            actor: user,
+            action: nextActive === 0 ? 'USER_LOCKED' : 'USER_UPDATED',
+            entityType: 'user',
+            entityId: targetId,
+            summary: `Cập nhật tài khoản ${target.email}: active=${nextActive}, role=${nextRole}, scope=${nextScope}`,
+            detail: { targetId, nextRole, nextScope, nextActive },
+            ip
+          });
+
+          return auth.getUserWithStaff(targetId);
+        });
+
+        realtime.broadcastEvent({ entity: 'staff', action: 'record_updated', id: updated.staff_id });
+        return sendJson(res, 200, { ok: true, user: updated });
+      }
+
+      // Dynamic Staff endpoints (Scenario 15!)
+      if (method === 'GET' && pathname === '/api/admin/staff') {
+        const items = dbm.db.prepare(`
+          SELECT s.*, u.role AS user_role, u.scope AS user_scope, u.active AS user_active
+          FROM staff s LEFT JOIN users u ON u.id = s.user_id
+          ORDER BY s.active DESC, s.id ASC
+        `).all();
+        return sendJson(res, 200, { items });
+      }
+
+      const stfMatch = pathname.match(/^\/api\/admin\/staff\/([^/]+)$/);
+      if (stfMatch && method === 'PATCH') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const stfId = stfMatch[1];
+        const stf = dbm.db.prepare('SELECT * FROM staff WHERE id = ?').get(stfId);
+        if (!stf) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy nhân sự.' });
+        const body = await readJsonBody(req, 16 * 1024);
+        const ts = nowIso();
+        const nextName = body.full_name !== undefined ? cleanString(body.full_name, 160) : stf.full_name;
+        const nextZalo = body.zalo_slot !== undefined ? cleanString(body.zalo_slot, 60) : stf.zalo_slot;
+        const nextTeam = body.team !== undefined ? cleanString(body.team, 100) : stf.team;
+        const nextActive = body.active !== undefined ? (body.active ? 1 : 0) : stf.active;
+
+        const updated = dbm.transaction((db) => {
+          db.prepare('UPDATE staff SET full_name = ?, zalo_slot = ?, team = ?, active = ?, updated_at = ? WHERE id = ?')
+            .run(nextName, nextZalo, nextTeam, nextActive, ts, stfId);
+          if (stf.user_id && body.full_name !== undefined) {
+            db.prepare('UPDATE users SET full_name = ?, updated_at = ? WHERE id = ?').run(nextName, ts, stf.user_id);
+          }
+          dbm.appendAudit(db, {
+            actor: user,
+            action: 'STAFF_UPDATED',
+            entityType: 'staff',
+            entityId: stfId,
+            summary: `Cập nhật nhân sự ${stfId}: ${nextName} (Zalo: ${nextZalo})`,
+            ip
+          });
+          return db.prepare('SELECT * FROM staff WHERE id = ?').get(stfId);
+        });
+        realtime.broadcastEvent({ entity: 'staff', action: 'record_updated', id: stfId });
+        return sendJson(res, 200, { ok: true, staff: updated });
+      }
+
+      // Intake Years management
+      if (method === 'GET' && pathname === '/api/admin/intake-years') {
+        const items = dbm.db.prepare('SELECT * FROM intake_years ORDER BY year ASC').all();
+        return sendJson(res, 200, { items });
+      }
+
+      if (method === 'POST' && pathname === '/api/admin/intake-years') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const body = await readJsonBody(req, 16 * 1024);
+        const year = cleanString(body.year || '', 10);
+        if (!/^\d{4}$/.test(year)) throw validationError('Niên khóa phải là 4 chữ số (vd: 2030).');
+        const yNum = parseInt(year, 10);
+        const label = cleanString(body.label || `Niên khóa ${year} (11/${yNum - 1} - 10/${year})`, 160);
+        const ts = nowIso();
+        dbm.transaction((db) => {
+          db.prepare('INSERT OR IGNORE INTO intake_years (year, label, start_month, end_month, status, created_at) VALUES (?, ?, ?, ?, ?, ?)')
+            .run(year, label, `${yNum - 1}-11`, `${year}-10`, 'open', ts);
+          // Initialize empty v1 KPI plan for new year
+          const existingPlan = db.prepare('SELECT id FROM kpi_plan_versions WHERE intake_year = ?').get(year);
+          if (!existingPlan) {
+            const pId = newId('kpl');
+            db.prepare('INSERT INTO kpi_plan_versions (id, intake_year, version_number, status, note, created_by, created_at) VALUES (?, ?, 1, ?, ?, ?, ?)')
+              .run(pId, year, 'active', `Kế hoạch khởi tạo NK ${year}`, user.id, ts);
+          }
+          dbm.appendAudit(db, { actor: user, action: 'INTAKE_YEAR_CREATED', entityType: 'intake_year', entityId: year, summary: `Mở niên khóa mới ${year}`, ip });
+        });
+        return sendJson(res, 201, { ok: true, year });
+      }
+
+      const iyMatch = pathname.match(/^\/api\/admin\/intake-years\/(\d{4})$/);
+      if (iyMatch && method === 'PATCH') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const year = iyMatch[1];
+        const body = await readJsonBody(req, 16 * 1024);
+        const status = cleanString(body.status || 'open', 20);
+        if (!['open', 'closed'].includes(status)) throw validationError('Trạng thái niên khóa chỉ được là open hoặc closed.');
+        dbm.transaction((db) => {
+          db.prepare('UPDATE intake_years SET status = ? WHERE year = ?').run(status, year);
+          dbm.appendAudit(db, { actor: user, action: 'INTAKE_YEAR_STATUS', entityType: 'intake_year', entityId: year, summary: `Đổi trạng thái niên khóa ${year} -> ${status}`, ip });
+        });
+        return sendJson(res, 200, { ok: true, year, status });
+      }
+
+      // Server-only Audit Log (read-only! Clients can NEVER insert/edit/delete audit logs!)
+      if (method === 'GET' && pathname === '/api/admin/audit') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const limit = Math.min(500, Math.max(10, parseInt(urlObj.searchParams.get('limit') || '100', 10)));
+        const actionFilter = cleanString(urlObj.searchParams.get('action') || '', 60);
+        const items = actionFilter
+          ? dbm.db.prepare('SELECT * FROM audit_events WHERE action = ? ORDER BY id DESC LIMIT ?').all(actionFilter, limit)
+          : dbm.db.prepare('SELECT * FROM audit_events ORDER BY id DESC LIMIT ?').all(limit);
+        return sendJson(res, 200, { items });
+      }
+
+      // Backup & Restore (DEV06)
+      if (method === 'GET' && pathname === '/api/backup') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const items = dbm.db.prepare('SELECT * FROM backup_records ORDER BY created_at DESC LIMIT 50').all();
+        return sendJson(res, 200, { items });
+      }
+
+      if (method === 'POST' && pathname === '/api/backup') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const bkp = createVersionedBackup(dbm, { actor: user, backupType: 'manual', ip });
+        if (dbm.pgStore) {
+          await dbm.pgStore.saveBackup({
+            filename: bkp.filename,
+            schemaVersion: bkp.schemaVersion,
+            sizeBytes: bkp.sizeBytes,
+            backupType: bkp.backupType,
+            payloadJson: bkp.rawJson
+          });
+        }
+        const { rawJson, ...safeBkp } = bkp;
+        return sendJson(res, 201, { ok: true, backup: safeBkp });
+      }
+
+      const bkpDlMatch = pathname.match(/^\/api\/backup\/([a-zA-Z0-9._-]+)\/download$/);
+      if (bkpDlMatch && method === 'GET') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const filename = path.basename(bkpDlMatch[1]);
+        const fullPath = path.join(config.backupDir, filename);
+        let buf = null;
+        if (fs.existsSync(fullPath)) {
+          buf = fs.readFileSync(fullPath);
+        } else if (dbm.pgStore) {
+          const cloudJson = await dbm.pgStore.loadBackup(filename);
+          if (cloudJson) buf = Buffer.from(cloudJson, 'utf8');
+        }
+        if (!buf) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tệp backup.' });
+        dbm.appendAudit(null, { actor: user, action: 'BACKUP_DOWNLOADED', entityType: 'backup', summary: `Tải bản sao lưu ngoài máy chủ: ${filename}`, ip });
+        return sendBuffer(res, 200, buf, 'application/json; charset=utf-8', filename);
+      }
+
+      if (method === 'POST' && pathname === '/api/backup/restore') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        auth.requirePermission(user, 'can_restore', 'Tài khoản không có quyền khôi phục hệ thống.');
+        const body = await readJsonBody(req, Math.max(config.maxBodyBytes, 15 * 1024 * 1024));
+        const dryRun = Boolean(body.dryRun);
+
+        // Require elevated re-authentication (password or admin PIN) for actual restore execution!
+        if (!dryRun) {
+          const confirmed = auth.verifyElevatedAdminConfirmation(user.id, {
+            confirmPassword: body.confirmPassword,
+            confirmPin: body.confirmPin
+          });
+          if (!confirmed) {
+            return sendJson(res, 403, {
+              error: 'ELEVATED_AUTH_REQUIRED',
+              message: 'Khôi phục dữ liệu yêu cầu xác thực tăng cường (nhập mật khẩu Super Admin hoặc mã PIN quản trị).'
+            });
+          }
+        }
+
+        let payload = body.backupPayload;
+        if (!payload && body.filename) {
+          const safeName = path.basename(String(body.filename));
+          const fullPath = path.join(config.backupDir, safeName);
+          if (fs.existsSync(fullPath)) {
+            payload = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+          } else if (dbm.pgStore) {
+            const cloudJson = await dbm.pgStore.loadBackup(safeName);
+            if (cloudJson) payload = JSON.parse(cloudJson);
+          }
+          if (!payload) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tệp sao lưu trên máy chủ.' });
+        }
+        const result = restoreFromBackupPayload(dbm, payload, { actor: user, ip, dryRun, realtime });
+        if (!dryRun && dbm.pgStore && result.checkpointObj) {
+          await dbm.pgStore.saveBackup({
+            filename: result.checkpointObj.filename,
+            schemaVersion: result.checkpointObj.schemaVersion,
+            sizeBytes: result.checkpointObj.sizeBytes,
+            backupType: 'pre_restore',
+            payloadJson: result.checkpointObj.rawJson
+          });
+        }
+        const { checkpointObj, ...safeRes } = result;
+        return sendJson(res, 200, { ok: true, ...safeRes });
+      }
+
+      // Clean Production Reset (Super Admin only + elevated confirmation + automatic pre_reset checkpoint)
+      if (method === 'POST' && pathname === '/api/admin/reset-data') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const body = await readJsonBody(req, 16 * 1024);
+        const confirmed = auth.verifyElevatedAdminConfirmation(user.id, {
+          confirmPassword: body.confirmPassword,
+          confirmPin: body.confirmPin
+        });
+        if (!confirmed) {
+          return sendJson(res, 403, {
+            error: 'ELEVATED_AUTH_REQUIRED',
+            message: 'Xóa sạch dữ liệu thử nghiệm yêu cầu nhập mật khẩu Super Admin hoặc mã PIN quản trị.'
+          });
+        }
+        const checkpoint = createVersionedBackup(dbm, { actor: user, backupType: 'pre_reset', ip });
+        if (dbm.pgStore) {
+          await dbm.pgStore.saveBackup({
+            filename: checkpoint.filename,
+            schemaVersion: checkpoint.schemaVersion,
+            sizeBytes: checkpoint.sizeBytes,
+            backupType: 'pre_reset',
+            payloadJson: checkpoint.rawJson
+          });
+        }
+        const clearTables = [
+          'import_rows', 'import_batches', 'notification_jobs', 'report_snapshots',
+          'task_comments', 'tasks', 'zalo_staging', 'regional_records',
+          'assignment_history', 'document_checklists', 'follow_ups', 'interactions',
+          'milestone_events', 'registrations', 'contact_points', 'persons', 'idempotency_keys'
+        ];
+        dbm.transaction((db) => {
+          for (const tbl of clearTables) {
+            db.exec(`DELETE FROM ${tbl}`);
+          }
+          dbm.appendAudit(db, {
+            actor: user,
+            action: 'PRODUCTION_CLEAN_RESET',
+            entityType: 'system',
+            summary: `Đã dọn sạch toàn bộ hồ sơ/công việc thử nghiệm về nguyên trạng (giữ tài khoản, nhân sự, niên khóa & KPI 2027). Checkpoint: ${checkpoint.filename}`,
+            ip
+          });
+        });
+        realtime.broadcastSystemReload(`Dữ liệu thử nghiệm đã được dọn sạch về nguyên trạng bởi ${user.full_name}.`);
+        return sendJson(res, 200, { ok: true, checkpoint: checkpoint.filename });
+      }
+
+      // --- M10 (P2): SOURCE / SCHOOL / PROVINCE / MAJOR CONVERSION ANALYTICS ---
+      if (method === 'GET' && pathname === '/api/analytics') {
+        const intakeYear = urlObj.searchParams.get('intakeYear') || '2027';
+        const scope = auth.buildScopeFilterSql(user, 'r.assigned_staff_id');
+        const regs = dbm.db.prepare(`
+          SELECT r.id, r.source, r.school, r.province, r.major, r.stage_code
+          FROM registrations r
+          WHERE r.intake_year = ? AND r.deleted_at IS NULL AND ${scope.sql}
+        `).all(intakeYear, ...scope.params);
+
+        const groupBy = (field, emptyLabel) => {
+          const map = {};
+          for (const r of regs) {
+            const key = (r[field] || '').trim() || emptyLabel;
+            if (!map[key]) map[key] = { name: key, leads: 0, submitted: 0, enrolled: 0, withdrawn: 0 };
+            map[key].leads++;
+            if (r.stage_code === STAGE_CODE.SUBMITTED || r.stage_code === STAGE_CODE.ENROLLED) map[key].submitted++;
+            if (r.stage_code === STAGE_CODE.ENROLLED) map[key].enrolled++;
+            if (r.stage_code === STAGE_CODE.WITHDRAWN) map[key].withdrawn++;
+          }
+          return Object.values(map)
+            .map(row => ({
+              ...row,
+              submitRate: row.leads > 0 ? Math.round((row.submitted / row.leads) * 1000) / 10 : 0,
+              enrollRate: row.leads > 0 ? Math.round((row.enrolled / row.leads) * 1000) / 10 : 0
+            }))
+            .sort((a, b) => b.leads - a.leads);
+        };
+
+        const totals = {
+          leads: regs.length,
+          submitted: regs.filter(r => r.stage_code === STAGE_CODE.SUBMITTED || r.stage_code === STAGE_CODE.ENROLLED).length,
+          enrolled: regs.filter(r => r.stage_code === STAGE_CODE.ENROLLED).length,
+          withdrawn: regs.filter(r => r.stage_code === STAGE_CODE.WITHDRAWN).length
+        };
+
+        return sendJson(res, 200, {
+          intakeYear,
+          totals,
+          bySource: groupBy('source', 'Chưa rõ nguồn'),
+          byMajor: groupBy('major', 'Chưa xác định ngành'),
+          bySchool: groupBy('school', 'Chưa rõ trường THPT').slice(0, 30),
+          byProvince: groupBy('province', 'Chưa rõ tỉnh/TP')
+        });
+      }
+
+      return sendJson(res, 404, { error: 'NOT_FOUND', message: `Không tìm thấy API ${method} ${pathname}` });
+      };
+
+      try {
+        await dispatch();
+        if (dbm.isCloudEnabled() && dbm.dirty) {
+          await dbm.flushToCloud();
+        }
+        for (const item of pendingWs) {
+          if (item.kind === 'event') rawRealtime.broadcastEvent(item.ev);
+          else if (item.kind === 'reload') rawRealtime.broadcastSystemReload(item.reason);
+        }
+        if (pendingResp) {
+          if (pendingResp.type === 'json') {
+            return sendJsonRaw(res, pendingResp.statusCode, pendingResp.data, pendingResp.extraHeaders);
+          }
+          return sendBufferRaw(res, pendingResp.statusCode, pendingResp.buf, pendingResp.contentType, pendingResp.filename);
+        }
+      } catch (err) {
+        const status = err.statusCode || (err.code === 'STORAGE_COMMIT_FAILED' ? 500 : 500);
+        return sendJsonRaw(res, status, {
+          error: err.code || 'INTERNAL_ERROR',
+          message: err.message || 'Lỗi xử lý phía máy chủ.',
+          details: err.details || undefined
+        });
+      }
+    };
+
+    if (dbm.isCloudEnabled() && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
+      return dbm.withWriteLock(executeRequest);
+    }
+    return executeRequest();
+  }
+
+  return handleApi;
+}
+
+module.exports = { createApiHandler };
+
+  }
+};
+
+const __moduleCache = {};
+function __localRequire(id) {
+  let key = id;
+  if (key.startsWith('./src/')) key = './' + key.slice(6);
+  if (__moduleFactories[key]) {
+    if (!__moduleCache[key]) {
+      const mod = { exports: {} };
+      __moduleCache[key] = mod;
+      __moduleFactories[key](mod, mod.exports, __localRequire);
+    }
+    return __moduleCache[key].exports;
+  }
+  return require(id);
+}
+
+// ---------------------------------------------------------------------------
+// 3. HTTP + WEBSOCKET SERVER FACTORY & ENTRYPOINT
+// ---------------------------------------------------------------------------
+const { loadConfig } = __localRequire('./config');
+const { DatabaseManager } = __localRequire('./db');
+const { PostgresStore } = __localRequire('./pg-store');
+const { AuthService } = __localRequire('./auth');
+const { RealtimeHub } = __localRequire('./realtime');
+const { createApiHandler } = __localRequire('./routes');
+const { createVersionedBackup } = __localRequire('./backup');
+
+function setSecurityHeaders(res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'same-origin');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws: wss:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+  );
+}
+
+function createAppServer(overrides = {}) {
+  const config = loadConfig(overrides);
+  const startTimeMs = Date.now();
+  const useCloudPg = Boolean(overrides.pgPool || config.databaseUrl);
+  const dbm = new DatabaseManager(config);
+  let dbInitialized = false;
+  if (!useCloudPg) {
+    dbm.init();
+    dbInitialized = true;
+  }
+  const auth = new AuthService(dbm, config);
+
+  let realtime = null;
+  let apiHandler = null;
+
+  const server = http.createServer(async (req, res) => {
+    setSecurityHeaders(res);
+    const urlObj = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+
+    if (urlObj.pathname.startsWith('/api/')) {
+      return apiHandler(req, res, urlObj);
+    }
+
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      res.writeHead(405, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('Method Not Allowed');
+    }
+
+    let reqPath;
+    try {
+      reqPath = decodeURIComponent(urlObj.pathname);
+    } catch (_) {
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('Bad Request');
+    }
+
+    if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
+
+    // Exact allow-listed in-memory asset lookup (zero disk traversal possible!)
+    const asset = Object.prototype.hasOwnProperty.call(STATIC_ASSETS, reqPath)
+      ? STATIC_ASSETS[reqPath]
+      : null;
+
+    if (!asset) {
+      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+      return res.end('Not Found');
+    }
+
+    const buf = Buffer.from(asset.body, 'utf8');
+    res.writeHead(200, {
+      'Content-Type': asset.contentType,
+      'Content-Length': buf.length,
+      'Cache-Control': reqPath === '/index.html' ? 'no-cache' : 'public, max-age=300'
+    });
+    if (req.method === 'HEAD') return res.end();
+    res.end(buf);
+  });
+
+  realtime = new RealtimeHub({ server, auth, config });
+  apiHandler = createApiHandler({ dbm, auth, realtime, config, startTimeMs });
+
+  // Scheduled automated versioned backup every 6 hours (runs even without open browser)
+  let backupTimer = null;
+  if (!overrides.disableScheduledBackup) {
+    backupTimer = setInterval(async () => {
+      try {
+        const doBackup = async () => {
+          const bkp = createVersionedBackup(dbm, { actor: null, backupType: 'scheduled' });
+          if (dbm.pgStore) {
+            await dbm.pgStore.saveBackup({
+              filename: bkp.filename,
+              schemaVersion: bkp.schemaVersion,
+              sizeBytes: bkp.sizeBytes,
+              backupType: 'scheduled',
+              payloadJson: bkp.rawJson
+            });
+            await dbm.flushToCloud();
+          }
+        };
+        if (dbm.isCloudEnabled()) await dbm.withWriteLock(doBackup);
+        else await doBackup();
+      } catch (e) {
+        console.error('[Backup Scheduler Error]', e.message);
+      }
+    }, 6 * 3600 * 1000);
+    if (backupTimer.unref) backupTimer.unref();
+  }
+
+  return {
+    config,
+    dbm,
+    auth,
+    realtime,
+    server,
+    async start() {
+      if (!dbInitialized && useCloudPg) {
+        const pgStore = new PostgresStore(config, overrides.pgPool || null);
+        await dbm.initCloud(pgStore);
+        dbInitialized = true;
+      }
+      return new Promise((resolve, reject) => {
+        server.once('error', reject);
+        server.listen(config.port, config.host, () => {
+          const addr = server.address();
+          resolve({ port: addr.port, host: addr.address });
+        });
+      });
+    },
+    async stop() {
+      if (backupTimer) clearInterval(backupTimer);
+      realtime.close();
+      await new Promise((resolve) => server.close(() => resolve()));
+      await dbm.closeAsync();
+    }
+  };
+}
+
+if (require.main === module) {
+  const app = createAppServer();
+  app.start().then(({ port }) => {
+    const storageLabel = app.dbm.isCloudEnabled()
+      ? `PostgreSQL Cloud (rev #${app.dbm.pgStore.rev}) + SQLite WAL`
+      : `SQLite Local (${app.config.dbPath})`;
+    console.log('================================================================');
+    console.log(` ITC Tuyển Sinh Server v${app.config.appVersion} (Single-File Bundle) đang chạy!`);
+    console.log(` Địa chỉ LAN/Cloud : http://localhost:${port}`);
+    console.log(` Lưu trữ bền vững  : ${storageLabel}`);
+    console.log('================================================================');
+  }).catch((err) => {
+    console.error('Không thể khởi động máy chủ:', err);
+    process.exit(1);
+  });
+
+  const graceful = () => {
+    console.log('\nĐang dừng máy chủ an toàn...');
+    app.stop().then(() => process.exit(0));
+  };
+  process.on('SIGINT', graceful);
+  process.on('SIGTERM', graceful);
+}
+
+module.exports = { createAppServer, STATIC_ASSETS, PostgresStore };
