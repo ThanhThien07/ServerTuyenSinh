@@ -111,8 +111,25 @@ const path = require('path');
 
 const ROOT_DIR = __dirname;
 
+function sanitizeDatabaseUrl(raw) {
+  let s = String(raw || '').trim();
+  if (!s) return '';
+  if (/^psql\s+/i.test(s)) s = s.replace(/^psql\s+/i, '').trim();
+  if ((s.startsWith("'") && s.endsWith("'")) || (s.startsWith('"') && s.endsWith('"'))) {
+    s = s.slice(1, -1).trim();
+  }
+  try {
+    const u = new URL(s);
+    u.searchParams.delete('channel_binding');
+    return u.toString();
+  } catch (_) {
+    return s;
+  }
+}
+
 function loadConfig(overrides = {}) {
-  const databaseUrl = overrides.databaseUrl !== undefined ? overrides.databaseUrl : (process.env.DATABASE_URL || '');
+  const rawDbUrl = overrides.databaseUrl !== undefined ? overrides.databaseUrl : (process.env.DATABASE_URL || '');
+  const databaseUrl = sanitizeDatabaseUrl(rawDbUrl);
   const defaultLocalDataDir = databaseUrl
     ? path.join(os.tmpdir(), 'itc-tuyensinh-runtime')
     : path.join(ROOT_DIR, 'data');
@@ -6527,16 +6544,6 @@ function createApiHandler({ dbm, auth, realtime: rawRealtime, config, startTimeM
           data = buildReportDataset(dbm, parseReportParams(urlObj.searchParams));
         }
         const docxBuf = await generateRealDocxBuffer(data);
-        dbm.appendAudit(null, { actor: user, action: 'EXPORT_REPORT_DOCX', entityType: 'report', entityId: snapshotId || null, summary: `Xuất báo cáo Word (.docx) kỳ ${data.meta.periodDisplay}`, ip });
-        return sendBuffer(
-          res, 200, docxBuf,
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          `Bao_Cao_Tuyen_Sinh_ITC_${data.meta.intakeYear}_${data.meta.periodType}.docx`
-        );
-      }
-
-      if (method === 'GET' && pathname === '/api/reports/export/xlsx') {
-        auth.requirePermission(user, 'can_export', 'Tài khoản không có quyền xuất báo cáo Excel.');
         const snapshotId = urlObj.searchParams.get('snapshotId');
         let data;
         if (snapshotId) {
@@ -6580,6 +6587,29 @@ function createApiHandler({ dbm, auth, realtime: rawRealtime, config, startTimeM
           subject,
           body: content,
           ip
+        });
+        return sendJson(res, 201, { ok: true, job });
+      }
+
+      // --- M9: ADMIN, RBAC, STAFF, INTAKE YEARS, AUDIT, BACKUP/RESTORE ---
+      if (method === 'GET' && pathname === '/api/admin/users') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
+        const rows = dbm.db.prepare(`
+          SELECT u.*, s.id AS staff_id, s.zalo_slot AS staff_zalo_slot, s.team AS staff_team
+          FROM users u LEFT JOIN staff s ON s.user_id = u.id
+          ORDER BY u.created_at ASC
+        `).all();
+        return sendJson(res, 200, { items: rows.map(r => auth.sanitizeUser(r)) });
+      }
+
+      if (method === 'POST' && pathname === '/api/admin/users') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const body = await readJsonBody(req, 32 * 1024);
+        const email = cleanString(body.email || '', 160).toLowerCase();
+        const fullName = cleanString(body.full_name || '', 160);
+        const password = cleanString(body.password || 'ItcStaff@2027!', 120);
+        const role = cleanString(body.role || ROLES.CONSULTANT, 30);
+        const scope = cleanString(body.scope || (role === ROLES.CONSULTANT ? SCOPES.OWN : SCOPES.ALL), 20);
         if (!email || !fullName) throw validationError('Email và Họ tên không được trống.');
         if (!VALID_ROLES.has(role)) throw validationError('Vai trò không hợp lệ.');
         if (!VALID_SCOPES.has(scope)) throw validationError('Phạm vi dữ liệu không hợp lệ.');
