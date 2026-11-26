@@ -6544,6 +6544,16 @@ function createApiHandler({ dbm, auth, realtime: rawRealtime, config, startTimeM
           data = buildReportDataset(dbm, parseReportParams(urlObj.searchParams));
         }
         const docxBuf = await generateRealDocxBuffer(data);
+        dbm.appendAudit(null, { actor: user, action: 'EXPORT_REPORT_DOCX', entityType: 'report', entityId: snapshotId || null, summary: `Xuất báo cáo Word (.docx) kỳ ${data.meta.periodDisplay}`, ip });
+        return sendBuffer(
+          res, 200, docxBuf,
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          `Bao_Cao_Tuyen_Sinh_ITC_${data.meta.intakeYear}_${data.meta.periodType}.docx`
+        );
+      }
+
+      if (method === 'GET' && pathname === '/api/reports/export/xlsx') {
+        auth.requirePermission(user, 'can_export', 'Tài khoản không có quyền xuất báo cáo Excel.');
         const snapshotId = urlObj.searchParams.get('snapshotId');
         let data;
         if (snapshotId) {
