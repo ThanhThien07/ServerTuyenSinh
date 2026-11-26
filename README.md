@@ -47,10 +47,7 @@ npm start
 
 Mở trình duyệt truy cập: `http://localhost:3000` (hoặc `http://<IP-LAN-may-chu>:3000`).
 
-> **Khởi tạo dữ liệu sạch (Mục 9 báo cáo)**: Khi chạy `npm start` lần đầu, hệ thống chỉ tạo tài khoản quản trị/nhân sự, danh mục niên khóa `2027–2029` và kế hoạch KPI 2027 chính thức — **tuyệt đối không tự tạo hồ sơ thí sinh mẫu hay lấy state từ trình duyệt đầu tiên**. Nếu muốn nạp dữ liệu mẫu để tập huấn/kiểm thử riêng, chạy thủ công:
-> ```bash
-> npm run seed-demo
-> ```
+> **Khởi tạo dữ liệu sạch 100% nguyên trạng (Mục 9 báo cáo)**: Hệ thống hoàn toàn không chứa hay tự nạp dữ liệu thí sinh mẫu. Khi chạy lần đầu chỉ tạo 6 tài khoản chính thức, danh mục niên khóa `2027–2029` và kế hoạch KPI 2027 chuẩn (`4.000 ĐK / 1.440 HS / 900 NH`). Nếu cần xóa sạch dữ liệu sau khi dùng thử, Super Admin vào **Mục 9 → Sao lưu & Khôi phục → Dọn sạch dữ liệu thử nghiệm**.
 
 ---
 
@@ -107,19 +104,33 @@ Mở trình duyệt truy cập: `http://localhost:3000` (hoặc `http://<IP-LAN-
 
 ---
 
-## 6. Biến Môi Trường & Vận Hành
+## 6. Biến Môi Trường & Triển Khai Chạy Vĩnh Viễn Miễn Phí (Render + Neon/Supabase)
 
 | Biến môi trường | Mặc định | Ý nghĩa |
 | --- | --- | --- |
-| `PORT` | `3000` | Cổng HTTP/WebSocket |
-| `HOST` | `0.0.0.0` | Địa chỉ lắng nghe (LAN) |
-| `ITC_DATA_DIR` | `./data` | Thư mục lưu SQLite DB |
-| `ITC_BACKUP_DIR` | `./data/backups` | Thư mục lưu bản sao lưu theo dấu thời gian |
+| `NODE_VERSION` | `22.14.0` | **Bắt buộc trên Render** (cần Node >= `22.5` cho `node:sqlite`) |
+| `DATABASE_URL` | *(trống = SQLite Local)* | **Chuỗi PostgreSQL** (Neon.tech / Supabase Free) để lưu bền vĩnh viễn qua mọi lần Render restart/redeploy |
+| `ITC_DEFAULT_ADMIN_PASSWORD` | `ItcAdmin@2027!` | Mật khẩu khởi tạo cho 2 tài khoản Super Admin |
+| `ITC_DEFAULT_STAFF_PASSWORD` | `ItcStaff@2027!` | Mật khẩu khởi tạo cho 4 tài khoản Chuyên viên |
+| `ITC_DEFAULT_ADMIN_PIN` | `202700` | Mã PIN xác thực tăng cường khi Khôi phục / Dọn sạch dữ liệu |
+| `ITC_SYNC_DEFAULT_PASSWORDS` | *(trống)* | Đặt `true` 1 lần nếu muốn đồng bộ lại mật khẩu Super Admin/Nhân sự từ biến môi trường (nhớ xóa đi sau khi đăng nhập xong) |
+| `PORT` | `3000` | Cổng HTTP/WebSocket (Render tự cấp, không cần điền tay) |
+| `HOST` | `0.0.0.0` | Địa chỉ lắng nghe |
+| `ITC_DATA_DIR` | `./data` (hoặc `/tmp/...` khi có `DATABASE_URL`) | Thư mục lưu tệp runtime |
 | `ITC_SESSION_TTL_HOURS` | `12` | Thời hạn phiên đăng nhập (giờ) |
 | `ITC_MAX_BODY_BYTES` | `5242880` | Giới hạn kích thước request (5 MB) |
 | `ITC_ALLOWED_ORIGINS` | *(cùng host)* | Danh sách Origin bổ sung cho WebSocket (cách nhau dấu phẩy) |
-| `ITC_BACKUP_RETENTION` | `30` | Số bản sao lưu gần nhất được giữ lại |
+| `ITC_BACKUP_RETENTION` | `30` | Số bản sao lưu gần nhất được giữ lại (cả local & trong bảng `itc_backups` trên PostgreSQL) |
 | `SMTP_HOST` | *(trống)* | Khai báo máy chủ SMTP khi tích hợp gửi thư thật |
+
+### Hướng dẫn chạy miễn phí 100% & lưu dữ liệu vĩnh viễn trên Render
+1. **Tạo PostgreSQL miễn phí**: Vào [neon.tech](https://neon.tech) (khuyên dùng, không tự pause mất dữ liệu) → tạo Project mới → copy **Connection String** dạng `postgresql://...sslmode=require`.
+2. **Dán biến môi trường lên Render**: Copy nội dung trong tệp [.env.render.example](.env.render.example), bấm **Add from .env** trên Render, thay `DATABASE_URL` bằng chuỗi vừa copy và đặt mật khẩu/PIN riêng.
+3. **Cấu hình dịch vụ Render**:
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server.js`
+4. **Giữ web không bị ngủ (24/7)**: Tạo 1 monitor miễn phí trên **UptimeRobot** hoặc **cron-job.org**, ping đường dẫn `https://<ten-web-cua-ban>.onrender.com/api/health` mỗi **10 phút**.
+5. **Kiểm tra trạng thái lưu bền**: Đăng nhập Super Admin → **Mục 9 → Sức khỏe Hệ thống**, thấy trạng thái `postgresql+sqlite` (`pgConnected: true`, `pgRev >= 1`) là mọi dữ liệu & backup đã lưu vĩnh viễn trên PostgreSQL!
 
 ### Quy trình Sao lưu & Khôi phục
 - Hệ thống tự sao lưu có phiên bản mỗi 6 giờ (kể cả khi không ai mở trình duyệt) và cho phép tạo thủ công bất cứ lúc nào trong **Mục 9 → Sao lưu & Khôi phục**.
@@ -130,7 +141,7 @@ Mở trình duyệt truy cập: `http://localhost:3000` (hoặc `http://<IP-LAN-
 
 ## 7. Kết Quả Kiểm Thử Nghiệm Thu Tự Động (`npm test`)
 
-Toàn bộ **16/16 tình huống nghiệm thu** tại Mục 8 của báo cáo đánh giá đều được tự động hóa và kiểm chứng đạt **100%** trong [tests/acceptance.test.js](tests/acceptance.test.js):
+Toàn bộ **16/16 tình huống nghiệm thu** tại Mục 8 của báo cáo đánh giá cùng **tình huống #17 kiểm chứng lưu bền PostgreSQL Cloud khi xóa sạch ổ đĩa tạm Render** đều đạt **100%** trong [tests/acceptance.test.js](tests/acceptance.test.js):
 
 1. Quyền truy cập HTTP/WS 401, RBAC 403, khóa tài khoản ngắt HTTP & WebSocket (code `4001`) tức thì, bảo vệ Super Admin cuối cùng.
 2. Phạm vi hồ sơ (`own`/`all`) chặn truy cập chéo 403 trên API, lọc đúng Export Excel và lọc luồng WebSocket, thực thi `can_export`.

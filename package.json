@@ -8,11 +8,11 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node tests/acceptance.test.js",
-    "seed-demo": "node server.js --seed-demo"
+    "test": "node tests/acceptance.test.js"
   },
   "dependencies": {
     "jszip": "3.10.1",
+    "pg": "^8.13.1",
     "ws": "8.18.0",
     "xlsx": "0.18.5"
   }

@@ -28,7 +28,7 @@ const STATIC_ASSETS = {
   },
   "/index.html": {
     "contentType": "text/html; charset=utf-8",
-    "body": "<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>ITC Admissions — Quản trị Tuyển sinh</title>\n  <link rel=\"stylesheet\" href=\"/css/app.css\">\n</head>\n<body>\n  <!-- Toast notification stack (textContent only, XSS-safe) -->\n  <div id=\"toast-root\" class=\"toast-root\" aria-live=\"polite\"></div>\n\n  <!-- LOGIN VIEW (Rendered strictly before any app data loads!) -->\n  <section id=\"login-view\" class=\"login-screen\">\n    <div class=\"login-card\">\n      <div class=\"login-brand\">\n        <div class=\"brand-mark\">ITC</div>\n        <div>\n          <h1>Phòng Tuyển Sinh ITC</h1>\n          <p>Hệ thống Quản trị Tuyển sinh Nội bộ v2.0</p>\n        </div>\n      </div>\n      <form id=\"login-form\" class=\"form-stack\" autocomplete=\"on\">\n        <div class=\"field\">\n          <label for=\"login-email\">Email tài khoản</label>\n          <input id=\"login-email\" name=\"email\" type=\"email\" required placeholder=\"vd: tai.nh@itc.edu.vn\" autocomplete=\"username\">\n        </div>\n        <div class=\"field\">\n          <label for=\"login-password\">Mật khẩu</label>\n          <input id=\"login-password\" name=\"password\" type=\"password\" required placeholder=\"Nhập mật khẩu\" autocomplete=\"current-password\">\n        </div>\n        <div id=\"login-error\" class=\"alert alert-danger hidden\"></div>\n        <button id=\"login-submit\" type=\"submit\" class=\"btn btn-primary btn-block\">Đăng nhập hệ thống</button>\n      </form>\n      <div class=\"login-footer\">\n        <p>Xác thực phiên máy chủ • Phân quyền RBAC • SQLite giao dịch bền vững</p>\n      </div>\n    </div>\n  </section>\n\n  <!-- MAIN APPLICATION SHELL -->\n  <div id=\"app-shell\" class=\"app-shell hidden\">\n    <!-- Mobile Sidebar Overlay -->\n    <div id=\"sidebar-backdrop\" class=\"sidebar-backdrop hidden\"></div>\n\n    <!-- LEFT VERTICAL SIDEBAR -->\n    <aside id=\"sidebar\" class=\"sidebar\">\n      <div class=\"sidebar-head\">\n        <div class=\"brand-row\">\n          <div class=\"brand-mark sm\">ITC</div>\n          <div class=\"min-w-0\">\n            <div class=\"brand-title\">Tuyển Sinh ITC</div>\n            <div class=\"brand-sub\">Quản trị nội bộ v2.0</div>\n          </div>\n        </div>\n        <button id=\"sidebar-close-btn\" class=\"icon-btn mobile-only\" type=\"button\" aria-label=\"Đóng menu\">✕</button>\n      </div>\n\n      <nav id=\"sidebar-nav\" class=\"sidebar-nav\" aria-label=\"Phân hệ chức năng\"></nav>\n\n      <div class=\"sidebar-foot\">\n        <div class=\"user-card\">\n          <div class=\"user-card-top\">\n            <span class=\"dot dot-online\"></span>\n            <span id=\"sidebar-user-role\" class=\"user-role-tag\"></span>\n          </div>\n          <div id=\"sidebar-user-name\" class=\"user-name\"></div>\n          <div id=\"sidebar-user-email\" class=\"user-email\"></div>\n          <div class=\"user-actions\">\n            <button id=\"btn-change-pw\" type=\"button\" class=\"btn btn-xs btn-ghost\">Đổi MK</button>\n            <button id=\"btn-logout\" type=\"button\" class=\"btn btn-xs btn-danger-outline\">Đăng xuất</button>\n          </div>\n        </div>\n      </div>\n    </aside>\n\n    <!-- RIGHT WORKSPACE -->\n    <div class=\"workspace\">\n      <header class=\"topbar\">\n        <div class=\"topbar-left\">\n          <button id=\"sidebar-open-btn\" class=\"icon-btn mobile-only\" type=\"button\" aria-label=\"Mở menu\">☰</button>\n          <h2 id=\"page-title\" class=\"page-title\">Việc Hôm Nay</h2>\n        </div>\n\n        <div class=\"topbar-right\">\n          <div class=\"intake-picker\">\n            <label for=\"global-intake-year\" class=\"sr-only\">Niên khóa</label>\n            <select id=\"global-intake-year\" class=\"select-sm\"></select>\n          </div>\n          <div id=\"outbox-indicator\" class=\"pill pill-warn hidden\" title=\"Thao tác đang chờ đồng bộ\"></div>\n          <div id=\"sync-indicator\" class=\"pill pill-neutral\" title=\"Trạng thái kết nối WebSocket\">\n            <span class=\"dot\" id=\"sync-dot\"></span>\n            <span id=\"sync-label\">Đang kết nối...</span>\n          </div>\n          <div id=\"presence-indicator\" class=\"pill pill-neutral\" title=\"Nhân sự đang trực tuyến\">\n            <span id=\"presence-label\">1 trực tuyến</span>\n          </div>\n        </div>\n      </header>\n\n      <main id=\"module-root\" class=\"module-root\"></main>\n    </div>\n  </div>\n\n  <!-- SLIDE-OVER DETAIL DRAWER (CRM Registration Detail) -->\n  <div id=\"drawer-backdrop\" class=\"drawer-backdrop hidden\"></div>\n  <aside id=\"detail-drawer\" class=\"drawer hidden\" aria-label=\"Chi tiết hồ sơ\"></aside>\n\n  <!-- GENERIC MODAL CONTAINER (Import Preview, Conflict Resolution, Password Change, Modals) -->\n  <div id=\"modal-backdrop\" class=\"modal-backdrop hidden\">\n    <div id=\"modal-dialog\" class=\"modal-dialog\" role=\"dialog\" aria-modal=\"true\"></div>\n  </div>\n\n  <!-- Modular Client Scripts (Strict CSP: script-src 'self', ZERO inline JS!) -->\n  <script src=\"/js/utils.js\"></script>\n  <script src=\"/js/charts.js\"></script>\n  <script src=\"/js/api.js\"></script>\n  <script src=\"/js/sync.js\"></script>\n  <script src=\"/js/modules/today.js\"></script>\n  <script src=\"/js/modules/crm.js\"></script>\n  <script src=\"/js/modules/regional.js\"></script>\n  <script src=\"/js/modules/zalo.js\"></script>\n  <script src=\"/js/modules/sla.js\"></script>\n  <script src=\"/js/modules/kpi.js\"></script>\n  <script src=\"/js/modules/executive.js\"></script>\n  <script src=\"/js/modules/tasks.js\"></script>\n  <script src=\"/js/modules/reports.js\"></script>\n  <script src=\"/js/modules/admin.js\"></script>\n  <script src=\"/js/modules/analytics.js\"></script>\n  <script src=\"/js/app.js\"></script>\n</body>\n</html>\n"
+    "body": "<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>ITC Admissions — Quản trị Tuyển sinh</title>\n  <link rel=\"stylesheet\" href=\"/css/app.css\">\n</head>\n<body>\n  <!-- Toast notification stack (textContent only, XSS-safe) -->\n  <div id=\"toast-root\" class=\"toast-root\" aria-live=\"polite\"></div>\n\n  <!-- LOGIN VIEW (Rendered strictly before any app data loads!) -->\n  <section id=\"login-view\" class=\"login-screen\">\n    <div class=\"login-card\">\n      <div class=\"login-brand\">\n        <div class=\"brand-mark\">ITC</div>\n        <div>\n          <h1>Phòng Tuyển Sinh ITC</h1>\n          <p>Hệ thống Quản trị Tuyển sinh Nội bộ v2.1</p>\n        </div>\n      </div>\n      <form id=\"login-form\" class=\"form-stack\" autocomplete=\"on\">\n        <div class=\"field\">\n          <label for=\"login-email\">Email tài khoản</label>\n          <input id=\"login-email\" name=\"email\" type=\"email\" required placeholder=\"vd: tai.nh@itc.edu.vn\" autocomplete=\"username\">\n        </div>\n        <div class=\"field\">\n          <label for=\"login-password\">Mật khẩu</label>\n          <div style=\"display:flex;gap:6px;align-items:center\"><input id=\"login-password\" name=\"password\" type=\"password\" required placeholder=\"Nhập mật khẩu\" autocomplete=\"current-password\" style=\"flex:1\"><button id=\"toggle-login-pw\" type=\"button\" class=\"btn btn-outline btn-sm\" style=\"flex-shrink:0\">Hiện</button></div>\n        </div>\n        <div id=\"login-error\" class=\"alert alert-danger hidden\"></div>\n        <button id=\"login-submit\" type=\"submit\" class=\"btn btn-primary btn-block\">Đăng nhập hệ thống</button>\n      </form>\n      <div class=\"login-footer\">\n        <p>Xác thực phiên máy chủ • Phân quyền RBAC • SQLite giao dịch bền vững</p>\n      </div>\n    </div>\n  </section>\n\n  <!-- MAIN APPLICATION SHELL -->\n  <div id=\"app-shell\" class=\"app-shell hidden\">\n    <!-- Mobile Sidebar Overlay -->\n    <div id=\"sidebar-backdrop\" class=\"sidebar-backdrop hidden\"></div>\n\n    <!-- LEFT VERTICAL SIDEBAR -->\n    <aside id=\"sidebar\" class=\"sidebar\">\n      <div class=\"sidebar-head\">\n        <div class=\"brand-row\">\n          <div class=\"brand-mark sm\">ITC</div>\n          <div class=\"min-w-0\">\n            <div class=\"brand-title\">Tuyển Sinh ITC</div>\n            <div class=\"brand-sub\">Quản trị nội bộ v2.1</div>\n          </div>\n        </div>\n        <button id=\"sidebar-close-btn\" class=\"icon-btn mobile-only\" type=\"button\" aria-label=\"Đóng menu\">✕</button>\n      </div>\n\n      <nav id=\"sidebar-nav\" class=\"sidebar-nav\" aria-label=\"Phân hệ chức năng\"></nav>\n\n      <div class=\"sidebar-foot\">\n        <div class=\"user-card\">\n          <div class=\"user-card-top\">\n            <span class=\"dot dot-online\"></span>\n            <span id=\"sidebar-user-role\" class=\"user-role-tag\"></span>\n          </div>\n          <div id=\"sidebar-user-name\" class=\"user-name\"></div>\n          <div id=\"sidebar-user-email\" class=\"user-email\"></div>\n          <div class=\"user-actions\">\n            <button id=\"btn-change-pw\" type=\"button\" class=\"btn btn-xs btn-ghost\">Đổi MK</button>\n            <button id=\"btn-logout\" type=\"button\" class=\"btn btn-xs btn-danger-outline\">Đăng xuất</button>\n          </div>\n        </div>\n      </div>\n    </aside>\n\n    <!-- RIGHT WORKSPACE -->\n    <div class=\"workspace\">\n      <header class=\"topbar\">\n        <div class=\"topbar-left\">\n          <button id=\"sidebar-open-btn\" class=\"icon-btn mobile-only\" type=\"button\" aria-label=\"Mở menu\">☰</button>\n          <h2 id=\"page-title\" class=\"page-title\">Việc Hôm Nay</h2>\n        </div>\n\n        <div class=\"topbar-right\">\n          <div class=\"intake-picker\">\n            <label for=\"global-intake-year\" class=\"sr-only\">Niên khóa</label>\n            <select id=\"global-intake-year\" class=\"select-sm\"></select>\n          </div>\n          <div id=\"outbox-indicator\" class=\"pill pill-warn hidden\" title=\"Thao tác đang chờ đồng bộ\"></div>\n          <div id=\"sync-indicator\" class=\"pill pill-neutral\" title=\"Trạng thái kết nối WebSocket\">\n            <span class=\"dot\" id=\"sync-dot\"></span>\n            <span id=\"sync-label\">Đang kết nối...</span>\n          </div>\n          <div id=\"presence-indicator\" class=\"pill pill-neutral\" title=\"Nhân sự đang trực tuyến\">\n            <span id=\"presence-label\">1 trực tuyến</span>\n          </div>\n        </div>\n      </header>\n\n      <main id=\"module-root\" class=\"module-root\"></main>\n    </div>\n  </div>\n\n  <!-- SLIDE-OVER DETAIL DRAWER (CRM Registration Detail) -->\n  <div id=\"drawer-backdrop\" class=\"drawer-backdrop hidden\"></div>\n  <aside id=\"detail-drawer\" class=\"drawer hidden\" aria-label=\"Chi tiết hồ sơ\"></aside>\n\n  <!-- GENERIC MODAL CONTAINER (Import Preview, Conflict Resolution, Password Change, Modals) -->\n  <div id=\"modal-backdrop\" class=\"modal-backdrop hidden\">\n    <div id=\"modal-dialog\" class=\"modal-dialog\" role=\"dialog\" aria-modal=\"true\"></div>\n  </div>\n\n  <!-- Modular Client Scripts (Strict CSP: script-src 'self', ZERO inline JS!) -->\n  <script src=\"/js/utils.js\"></script>\n  <script src=\"/js/charts.js\"></script>\n  <script src=\"/js/api.js\"></script>\n  <script src=\"/js/sync.js\"></script>\n  <script src=\"/js/modules/today.js\"></script>\n  <script src=\"/js/modules/crm.js\"></script>\n  <script src=\"/js/modules/regional.js\"></script>\n  <script src=\"/js/modules/zalo.js\"></script>\n  <script src=\"/js/modules/sla.js\"></script>\n  <script src=\"/js/modules/kpi.js\"></script>\n  <script src=\"/js/modules/executive.js\"></script>\n  <script src=\"/js/modules/tasks.js\"></script>\n  <script src=\"/js/modules/reports.js\"></script>\n  <script src=\"/js/modules/admin.js\"></script>\n  <script src=\"/js/modules/analytics.js\"></script>\n  <script src=\"/js/app.js\"></script>\n</body>\n</html>\n"
   },
   "/js/api.js": {
     "contentType": "application/javascript; charset=utf-8",
@@ -36,7 +36,7 @@ const STATIC_ASSETS = {
   },
   "/js/app.js": {
     "contentType": "application/javascript; charset=utf-8",
-    "body": "(function (global) {\n  'use strict';\n\n  const { esc, toast } = global.ITCUtils;\n\n  const NAV_ITEMS = [\n    { id: 0, key: 'today', icon: '⚡', label: '0. Việc Hôm Nay' },\n    { id: 1, key: 'crm', icon: '👥', label: '1. CRM Thí Sinh' },\n    { id: 2, key: 'regional', icon: '🗺️', label: '2. Data Tuyến Tỉnh' },\n    { id: 3, key: 'zalo', icon: '💬', label: '3. Bóc Tách Zalo' },\n    { id: 4, key: 'sla', icon: '⏱️', label: '4. Giám Sát SLA' },\n    { id: 5, key: 'kpi', icon: '📊', label: '5. Tiến Độ KPI' },\n    { id: 6, key: 'executive', icon: '📅', label: '6. Việc BGH & Họp' },\n    { id: 7, key: 'tasks', icon: '✅', label: '7. Giao Việc & Hỗ Trợ' },\n    { id: 8, key: 'reports', icon: '📑', label: '8. Xuất Báo Cáo' },\n    { id: 9, key: 'admin', icon: '⚙️', label: '9. Quản Trị & Server' },\n    { id: 10, key: 'analytics', icon: '📈', label: '10. Phân Tích Nguồn' }\n  ];\n\n  const state = {\n    bootstrap: null,\n    intakeYear: '2027',\n    activeTab: 0,\n    refreshTimer: null\n  };\n\n  function showLogin(errorMsg = '') {\n    global.ITCSync.stop();\n    document.getElementById('app-shell').classList.add('hidden');\n    document.getElementById('login-view').classList.remove('hidden');\n    const errEl = document.getElementById('login-error');\n    if (errorMsg) {\n      errEl.textContent = errorMsg;\n      errEl.classList.remove('hidden');\n    } else {\n      errEl.classList.add('hidden');\n    }\n  }\n\n  function showApp() {\n    document.getElementById('login-view').classList.add('hidden');\n    document.getElementById('app-shell').classList.remove('hidden');\n  }\n\n  function openModal(html, onReady) {\n    const backdrop = document.getElementById('modal-backdrop');\n    const dialog = document.getElementById('modal-dialog');\n    dialog.innerHTML = html;\n    backdrop.classList.remove('hidden');\n    dialog.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', closeModal));\n    if (typeof onReady === 'function') onReady(dialog);\n  }\n\n  function closeModal() {\n    document.getElementById('modal-backdrop').classList.add('hidden');\n    document.getElementById('modal-dialog').innerHTML = '';\n  }\n\n  /**\n   * Explicit Conflict Resolution Modal (HTTP 409 Conflict — DEV05 & Scenario 10!)\n   */\n  function showConflictModal(conflictPayload, originalReq) {\n    const conflicts = conflictPayload.conflicts || [];\n    const curRec = conflictPayload.currentRecord || {};\n    openModal(`\n      <div class=\"modal-head\">\n        <h3 class=\"card-title text-danger\">Phát hiện xung đột chỉnh sửa đồng thời (HTTP 409)</h3>\n        <button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button>\n      </div>\n      <div class=\"modal-body form-stack\">\n        <div class=\"alert alert-warn\">Một người dùng khác đã cập nhật cùng trường dữ liệu lên phiên bản <strong>v${curRec.version || '?'}</strong> trước khi bạn lưu. Hệ thống không ghi đè im lặng — hãy chọn phương án xử lý:</div>\n        <div class=\"table-wrap\">\n          <table>\n            <thead><tr><th>Trường xung đột</th><th>Giá trị hiện tại trên Server</th><th>Giá trị bạn đang gửi</th></tr></thead>\n            <tbody>\n              ${conflicts.map(c => `<tr><td class=\"font-bold\">${esc(c.field)}</td><td>${esc(c.serverValue)}</td><td class=\"font-bold text-danger\">${esc(c.clientValue)}</td></tr>`).join('')}\n            </tbody>\n          </table>\n        </div>\n      </div>\n      <div class=\"modal-foot\">\n        <button type=\"button\" id=\"cfl-keep-server\" class=\"btn btn-outline\">Giữ bản Server (tải lại)</button>\n        <button type=\"button\" id=\"cfl-force-mine\" class=\"btn btn-danger\">Áp dụng bản của tôi (lên v${(curRec.version || 1) + 1})</button>\n      </div>\n    `, (dialog) => {\n      dialog.querySelector('#cfl-keep-server').addEventListener('click', () => {\n        closeModal();\n        refreshCurrentTab();\n      });\n      dialog.querySelector('#cfl-force-mine').addEventListener('click', async () => {\n        try {\n          const nextBody = { ...(originalReq.body || {}), expectedVersion: curRec.version };\n          await global.ITCApi.request(originalReq.method, originalReq.url, nextBody, { suppressConflictModal: true });\n          closeModal();\n          toast('Đã áp dụng bản của bạn trên phiên bản mới nhất.');\n          refreshCurrentTab();\n        } catch (err) {\n          toast(err.message, 'error');\n        }\n      });\n    });\n  }\n\n  function renderSidebar() {\n    const user = state.bootstrap.user;\n    const allowed = new Set(user.role === 'super_admin' ? NAV_ITEMS.map(n => n.id) : (user.allowed_tabs || [0, 1, 2, 3, 4, 5, 7, 10]));\n    if (['super_admin', 'manager'].includes(user.role)) {\n      allowed.add(6); allowed.add(8); allowed.add(9);\n    }\n\n    const nav = document.getElementById('sidebar-nav');\n    nav.innerHTML = NAV_ITEMS.filter(item => allowed.has(item.id)).map(item => `\n      <button type=\"button\" class=\"nav-item ${state.activeTab === item.id ? 'active' : ''}\" data-nav-id=\"${item.id}\">\n        <span class=\"nav-left\"><span>${item.icon}</span><span class=\"truncate\">${esc(item.label)}</span></span>\n      </button>\n    `).join('');\n\n    nav.querySelectorAll('[data-nav-id]').forEach(btn => {\n      btn.addEventListener('click', () => {\n        switchTab(Number(btn.dataset.navId));\n        closeMobileSidebar();\n      });\n    });\n\n    document.getElementById('sidebar-user-role').textContent = `${user.role} • scope:${user.scope}`;\n    document.getElementById('sidebar-user-name').textContent = user.full_name;\n    document.getElementById('sidebar-user-email').textContent = user.email;\n\n    const yearSel = document.getElementById('global-intake-year');\n    yearSel.innerHTML = (state.bootstrap.intakeYears || []).map(y =>\n      `<option value=\"${esc(y.year)}\" ${y.year === state.intakeYear ? 'selected' : ''}>NK ${esc(y.year)}${y.status === 'closed' ? ' (Đã khóa)' : ''}</option>`\n    ).join('');\n  }\n\n  function makeContext() {\n    return {\n      bootstrap: state.bootstrap,\n      intakeYear: state.intakeYear,\n      switchTab,\n      refreshCurrentTab,\n      reloadBootstrap,\n      openModal,\n      closeModal,\n      openRegistrationDrawer: (regId) => global.ITCModules.crm.openDetailDrawer(regId, makeContext())\n    };\n  }\n\n  async function refreshCurrentTab() {\n    if (!state.bootstrap) return;\n    const item = NAV_ITEMS.find(n => n.id === state.activeTab) || NAV_ITEMS[0];\n    document.getElementById('page-title').textContent = item.label;\n    const root = document.getElementById('module-root');\n    const mod = global.ITCModules[item.key];\n    if (!mod) {\n      root.innerHTML = '<div class=\"alert alert-danger\">Phân hệ chưa sẵn sàng.</div>';\n      return;\n    }\n    try {\n      await mod.render(root, makeContext());\n    } catch (err) {\n      if (err.statusCode !== 401) {\n        root.innerHTML = `<div class=\"alert alert-danger\">${esc(err.message)}</div>`;\n      }\n    }\n  }\n\n  function switchTab(tabId) {\n    state.activeTab = tabId;\n    renderSidebar();\n    refreshCurrentTab();\n  }\n\n  async function reloadBootstrap() {\n    const data = await global.ITCApi.get('/api/bootstrap');\n    state.bootstrap = data;\n    if (!data.intakeYears.some(y => y.year === state.intakeYear)) {\n      state.intakeYear = data.defaultIntakeYear || '2027';\n    }\n    global.ITCApi.setUserId(data.user.id);\n    renderSidebar();\n  }\n\n  function scheduleSoftRefresh() {\n    // Do NOT wipe unsent input while user is actively editing a form/modal or focused in an input!\n    const modalOpen = !document.getElementById('modal-backdrop').classList.contains('hidden');\n    const drawerOpen = !document.getElementById('detail-drawer').classList.contains('hidden');\n    const activeEl = document.activeElement;\n    const editingField = activeEl && ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl.tagName);\n    if (modalOpen || drawerOpen || editingField) return;\n\n    clearTimeout(state.refreshTimer);\n    state.refreshTimer = setTimeout(() => refreshCurrentTab(), 300);\n  }\n\n  function closeMobileSidebar() {\n    document.getElementById('sidebar').classList.remove('open');\n    document.getElementById('sidebar-backdrop').classList.add('hidden');\n  }\n\n  function wireGlobalEvents() {\n    global.ITCApi.onUnauthorized = (msg) => showLogin(msg || 'Vui lòng đăng nhập để tiếp tục.');\n    global.ITCApi.onConflict = (payload, req) => showConflictModal(payload, req);\n    global.ITCApi.onOutboxChange = (items) => {\n      const pill = document.getElementById('outbox-indicator');\n      if (items.length > 0) {\n        pill.textContent = `Outbox: ${items.length} thao tác chờ đồng bộ (Nhấn gửi lại)`;\n        pill.classList.remove('hidden');\n      } else {\n        pill.classList.add('hidden');\n      }\n    };\n\n    document.getElementById('outbox-indicator').addEventListener('click', async () => {\n      const res = await global.ITCApi.flushOutbox();\n      toast(`Đã đồng bộ ${res.flushed} thao tác (còn lại: ${res.remaining}).`, res.remaining > 0 ? 'warn' : 'ok');\n      if (res.flushed > 0) refreshCurrentTab();\n    });\n\n    global.ITCSync.onStatus = (st, label) => {\n      const dot = document.getElementById('sync-dot');\n      const lbl = document.getElementById('sync-label');\n      dot.className = 'dot ' + (st === 'online' ? 'dot-online' : (st === 'fallback' ? 'dot-warn' : 'dot-offline'));\n      lbl.textContent = label;\n    };\n    global.ITCSync.onPresence = (p) => {\n      document.getElementById('presence-label').textContent = `${p.onlineUsers} người online • ${p.totalConnections} tab`;\n    };\n    global.ITCSync.onDomainEvent = () => scheduleSoftRefresh();\n    global.ITCSync.onFallbackPoll = () => scheduleSoftRefresh();\n    global.ITCSync.onSessionRevoked = (reason) => {\n      toast(reason || 'Phiên đã bị thu hồi.', 'error');\n      showLogin(reason || 'Tài khoản đã bị khóa hoặc đăng xuất.');\n    };\n    global.ITCSync.onSystemReload = async (reason) => {\n      toast(reason || 'Hệ thống vừa khôi phục dữ liệu.', 'warn');\n      await reloadBootstrap();\n      refreshCurrentTab();\n    };\n\n    // Login form\n    document.getElementById('login-form').addEventListener('submit', async (e) => {\n      e.preventDefault();\n      const email = document.getElementById('login-email').value.trim();\n      const password = document.getElementById('login-password').value;\n      const errEl = document.getElementById('login-error');\n      errEl.classList.add('hidden');\n      try {\n        await global.ITCApi.post('/api/auth/login', { email, password }, { skipAuthRedirect: true });\n        document.getElementById('login-password').value = '';\n        await startAuthenticatedSession();\n      } catch (err) {\n        errEl.textContent = err.message;\n        errEl.classList.remove('hidden');\n      }\n    });\n\n    document.getElementById('btn-logout').addEventListener('click', async () => {\n      try { await global.ITCApi.post('/api/auth/logout', {}); } catch (_) {}\n      state.bootstrap = null;\n      showLogin('');\n      toast('Đã đăng xuất an toàn.');\n    });\n\n    document.getElementById('btn-change-pw').addEventListener('click', () => {\n      openModal(`\n        <div class=\"modal-head\"><h3 class=\"card-title\">Đổi mật khẩu tài khoản</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n        <form id=\"chg-pw-form\">\n          <div class=\"modal-body form-stack\">\n            <div class=\"field\"><label>Mật khẩu hiện tại *</label><input name=\"cur\" type=\"password\" required></div>\n            <div class=\"field\"><label>Mật khẩu mới (&ge;8 ký tự) *</label><input name=\"next\" type=\"password\" required minlength=\"8\"></div>\n          </div>\n          <div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"submit\" class=\"btn btn-primary\">Đổi mật khẩu</button></div>\n        </form>\n      `, (dialog) => {\n        dialog.querySelector('#chg-pw-form').addEventListener('submit', async (e) => {\n          e.preventDefault();\n          const fd = new FormData(e.target);\n          try {\n            await global.ITCApi.post('/api/auth/change-password', { currentPassword: fd.get('cur'), newPassword: fd.get('next') });\n            closeModal();\n            toast('Đã đổi mật khẩu thành công.');\n          } catch (err) { toast(err.message, 'error'); }\n        });\n      });\n    });\n\n    document.getElementById('global-intake-year').addEventListener('change', (e) => {\n      state.intakeYear = e.target.value;\n      toast(`Đã chuyển sang Niên khóa ${state.intakeYear} (dữ liệu cô lập hoàn toàn theo năm).`);\n      refreshCurrentTab();\n    });\n\n    document.getElementById('sidebar-open-btn').addEventListener('click', () => {\n      document.getElementById('sidebar').classList.add('open');\n      document.getElementById('sidebar-backdrop').classList.remove('hidden');\n    });\n    document.getElementById('sidebar-close-btn').addEventListener('click', closeMobileSidebar);\n    document.getElementById('sidebar-backdrop').addEventListener('click', closeMobileSidebar);\n  }\n\n  async function startAuthenticatedSession() {\n    await reloadBootstrap();\n    showApp();\n    global.ITCSync.start();\n    switchTab(0);\n  }\n\n  async function boot() {\n    wireGlobalEvents();\n    try {\n      await global.ITCApi.get('/api/auth/me', { skipAuthRedirect: true });\n      await startAuthenticatedSession();\n    } catch (_) {\n      showLogin('');\n    }\n  }\n\n  document.addEventListener('DOMContentLoaded', boot);\n})(window);\n"
+    "body": "(function (global) {\n  'use strict';\n\n  const { esc, toast } = global.ITCUtils;\n\n  const NAV_ITEMS = [\n    { id: 0, key: 'today', icon: '⚡', label: '0. Việc Hôm Nay' },\n    { id: 1, key: 'crm', icon: '👥', label: '1. CRM Thí Sinh' },\n    { id: 2, key: 'regional', icon: '🗺️', label: '2. Data Tuyến Tỉnh' },\n    { id: 3, key: 'zalo', icon: '💬', label: '3. Bóc Tách Zalo' },\n    { id: 4, key: 'sla', icon: '⏱️', label: '4. Giám Sát SLA' },\n    { id: 5, key: 'kpi', icon: '📊', label: '5. Tiến Độ KPI' },\n    { id: 6, key: 'executive', icon: '📅', label: '6. Việc BGH & Họp' },\n    { id: 7, key: 'tasks', icon: '✅', label: '7. Giao Việc & Hỗ Trợ' },\n    { id: 8, key: 'reports', icon: '📑', label: '8. Xuất Báo Cáo' },\n    { id: 9, key: 'admin', icon: '⚙️', label: '9. Quản Trị & Server' },\n    { id: 10, key: 'analytics', icon: '📈', label: '10. Phân Tích Nguồn' }\n  ];\n\n  const state = {\n    bootstrap: null,\n    intakeYear: '2027',\n    activeTab: 0,\n    refreshTimer: null\n  };\n\n  function showLogin(errorMsg = '') {\n    global.ITCSync.stop();\n    document.getElementById('app-shell').classList.add('hidden');\n    document.getElementById('login-view').classList.remove('hidden');\n    const errEl = document.getElementById('login-error');\n    if (errorMsg) {\n      errEl.textContent = errorMsg;\n      errEl.classList.remove('hidden');\n    } else {\n      errEl.classList.add('hidden');\n    }\n  }\n\n  function showApp() {\n    document.getElementById('login-view').classList.add('hidden');\n    document.getElementById('app-shell').classList.remove('hidden');\n  }\n\n  function openModal(html, onReady) {\n    const backdrop = document.getElementById('modal-backdrop');\n    const dialog = document.getElementById('modal-dialog');\n    dialog.innerHTML = html;\n    backdrop.classList.remove('hidden');\n    dialog.querySelectorAll('[data-close-modal]').forEach(btn => btn.addEventListener('click', closeModal));\n    if (typeof onReady === 'function') onReady(dialog);\n  }\n\n  function closeModal() {\n    document.getElementById('modal-backdrop').classList.add('hidden');\n    document.getElementById('modal-dialog').innerHTML = '';\n  }\n\n  /**\n   * Explicit Conflict Resolution Modal (HTTP 409 Conflict — DEV05 & Scenario 10!)\n   */\n  function showConflictModal(conflictPayload, originalReq) {\n    const conflicts = conflictPayload.conflicts || [];\n    const curRec = conflictPayload.currentRecord || {};\n    openModal(`\n      <div class=\"modal-head\">\n        <h3 class=\"card-title text-danger\">Phát hiện xung đột chỉnh sửa đồng thời (HTTP 409)</h3>\n        <button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button>\n      </div>\n      <div class=\"modal-body form-stack\">\n        <div class=\"alert alert-warn\">Một người dùng khác đã cập nhật cùng trường dữ liệu lên phiên bản <strong>v${curRec.version || '?'}</strong> trước khi bạn lưu. Hệ thống không ghi đè im lặng — hãy chọn phương án xử lý:</div>\n        <div class=\"table-wrap\">\n          <table>\n            <thead><tr><th>Trường xung đột</th><th>Giá trị hiện tại trên Server</th><th>Giá trị bạn đang gửi</th></tr></thead>\n            <tbody>\n              ${conflicts.map(c => `<tr><td class=\"font-bold\">${esc(c.field)}</td><td>${esc(c.serverValue)}</td><td class=\"font-bold text-danger\">${esc(c.clientValue)}</td></tr>`).join('')}\n            </tbody>\n          </table>\n        </div>\n      </div>\n      <div class=\"modal-foot\">\n        <button type=\"button\" id=\"cfl-keep-server\" class=\"btn btn-outline\">Giữ bản Server (tải lại)</button>\n        <button type=\"button\" id=\"cfl-force-mine\" class=\"btn btn-danger\">Áp dụng bản của tôi (lên v${(curRec.version || 1) + 1})</button>\n      </div>\n    `, (dialog) => {\n      dialog.querySelector('#cfl-keep-server').addEventListener('click', () => {\n        closeModal();\n        refreshCurrentTab();\n      });\n      dialog.querySelector('#cfl-force-mine').addEventListener('click', async () => {\n        try {\n          const nextBody = { ...(originalReq.body || {}), expectedVersion: curRec.version };\n          await global.ITCApi.request(originalReq.method, originalReq.url, nextBody, { suppressConflictModal: true });\n          closeModal();\n          toast('Đã áp dụng bản của bạn trên phiên bản mới nhất.');\n          refreshCurrentTab();\n        } catch (err) {\n          toast(err.message, 'error');\n        }\n      });\n    });\n  }\n\n  function renderSidebar() {\n    const user = state.bootstrap.user;\n    const allowed = new Set(user.role === 'super_admin' ? NAV_ITEMS.map(n => n.id) : (user.allowed_tabs || [0, 1, 2, 3, 4, 5, 7, 10]));\n    if (['super_admin', 'manager'].includes(user.role)) {\n      allowed.add(6); allowed.add(8); allowed.add(9);\n    }\n\n    const nav = document.getElementById('sidebar-nav');\n    nav.innerHTML = NAV_ITEMS.filter(item => allowed.has(item.id)).map(item => `\n      <button type=\"button\" class=\"nav-item ${state.activeTab === item.id ? 'active' : ''}\" data-nav-id=\"${item.id}\">\n        <span class=\"nav-left\"><span>${item.icon}</span><span class=\"truncate\">${esc(item.label)}</span></span>\n      </button>\n    `).join('');\n\n    nav.querySelectorAll('[data-nav-id]').forEach(btn => {\n      btn.addEventListener('click', () => {\n        switchTab(Number(btn.dataset.navId));\n        closeMobileSidebar();\n      });\n    });\n\n    document.getElementById('sidebar-user-role').textContent = `${user.role} • scope:${user.scope}`;\n    document.getElementById('sidebar-user-name').textContent = user.full_name;\n    document.getElementById('sidebar-user-email').textContent = user.email;\n\n    const yearSel = document.getElementById('global-intake-year');\n    yearSel.innerHTML = (state.bootstrap.intakeYears || []).map(y =>\n      `<option value=\"${esc(y.year)}\" ${y.year === state.intakeYear ? 'selected' : ''}>NK ${esc(y.year)}${y.status === 'closed' ? ' (Đã khóa)' : ''}</option>`\n    ).join('');\n  }\n\n  function makeContext() {\n    return {\n      bootstrap: state.bootstrap,\n      intakeYear: state.intakeYear,\n      switchTab,\n      refreshCurrentTab,\n      reloadBootstrap,\n      openModal,\n      closeModal,\n      openRegistrationDrawer: (regId) => global.ITCModules.crm.openDetailDrawer(regId, makeContext())\n    };\n  }\n\n  async function refreshCurrentTab() {\n    if (!state.bootstrap) return;\n    const item = NAV_ITEMS.find(n => n.id === state.activeTab) || NAV_ITEMS[0];\n    document.getElementById('page-title').textContent = item.label;\n    const root = document.getElementById('module-root');\n    const mod = global.ITCModules[item.key];\n    if (!mod) {\n      root.innerHTML = '<div class=\"alert alert-danger\">Phân hệ chưa sẵn sàng.</div>';\n      return;\n    }\n    try {\n      await mod.render(root, makeContext());\n    } catch (err) {\n      if (err.statusCode !== 401) {\n        root.innerHTML = `<div class=\"alert alert-danger\">${esc(err.message)}</div>`;\n      }\n    }\n  }\n\n  function switchTab(tabId) {\n    state.activeTab = tabId;\n    renderSidebar();\n    refreshCurrentTab();\n  }\n\n  async function reloadBootstrap() {\n    const data = await global.ITCApi.get('/api/bootstrap');\n    state.bootstrap = data;\n    if (!data.intakeYears.some(y => y.year === state.intakeYear)) {\n      state.intakeYear = data.defaultIntakeYear || '2027';\n    }\n    global.ITCApi.setUserId(data.user.id);\n    renderSidebar();\n  }\n\n  function scheduleSoftRefresh() {\n    // Do NOT wipe unsent input while user is actively editing a form/modal or focused in an input!\n    const modalOpen = !document.getElementById('modal-backdrop').classList.contains('hidden');\n    const drawerOpen = !document.getElementById('detail-drawer').classList.contains('hidden');\n    const activeEl = document.activeElement;\n    const editingField = activeEl && ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl.tagName);\n    if (modalOpen || drawerOpen || editingField) return;\n\n    clearTimeout(state.refreshTimer);\n    state.refreshTimer = setTimeout(() => refreshCurrentTab(), 300);\n  }\n\n  function closeMobileSidebar() {\n    document.getElementById('sidebar').classList.remove('open');\n    document.getElementById('sidebar-backdrop').classList.add('hidden');\n  }\n\n  function wireGlobalEvents() {\n    global.ITCApi.onUnauthorized = (msg) => showLogin(msg || 'Vui lòng đăng nhập để tiếp tục.');\n    global.ITCApi.onConflict = (payload, req) => showConflictModal(payload, req);\n    global.ITCApi.onOutboxChange = (items) => {\n      const pill = document.getElementById('outbox-indicator');\n      if (items.length > 0) {\n        pill.textContent = `Outbox: ${items.length} thao tác chờ đồng bộ (Nhấn gửi lại)`;\n        pill.classList.remove('hidden');\n      } else {\n        pill.classList.add('hidden');\n      }\n    };\n\n    document.getElementById('outbox-indicator').addEventListener('click', async () => {\n      const res = await global.ITCApi.flushOutbox();\n      toast(`Đã đồng bộ ${res.flushed} thao tác (còn lại: ${res.remaining}).`, res.remaining > 0 ? 'warn' : 'ok');\n      if (res.flushed > 0) refreshCurrentTab();\n    });\n\n    global.ITCSync.onStatus = (st, label) => {\n      const dot = document.getElementById('sync-dot');\n      const lbl = document.getElementById('sync-label');\n      dot.className = 'dot ' + (st === 'online' ? 'dot-online' : (st === 'fallback' ? 'dot-warn' : 'dot-offline'));\n      lbl.textContent = label;\n    };\n    global.ITCSync.onPresence = (p) => {\n      document.getElementById('presence-label').textContent = `${p.onlineUsers} người online • ${p.totalConnections} tab`;\n    };\n    global.ITCSync.onDomainEvent = () => scheduleSoftRefresh();\n    global.ITCSync.onFallbackPoll = () => scheduleSoftRefresh();\n    global.ITCSync.onSessionRevoked = (reason) => {\n      toast(reason || 'Phiên đã bị thu hồi.', 'error');\n      showLogin(reason || 'Tài khoản đã bị khóa hoặc đăng xuất.');\n    };\n    global.ITCSync.onSystemReload = async (reason) => {\n      toast(reason || 'Hệ thống vừa khôi phục dữ liệu.', 'warn');\n      await reloadBootstrap();\n      refreshCurrentTab();\n    };\n\n    // Login form\n    const tpwBtn = document.getElementById('toggle-login-pw'); if (tpwBtn) { tpwBtn.addEventListener('click', () => { const inp = document.getElementById('login-password'); const showing = inp.type === 'text'; inp.type = showing ? 'password' : 'text'; tpwBtn.textContent = showing ? 'Hiện' : 'Ẩn'; }); }\n    document.getElementById('login-form').addEventListener('submit', async (e) => {\n      e.preventDefault();\n      const email = document.getElementById('login-email').value.trim();\n      const password = document.getElementById('login-password').value;\n      const errEl = document.getElementById('login-error');\n      errEl.classList.add('hidden');\n      try {\n        await global.ITCApi.post('/api/auth/login', { email, password }, { skipAuthRedirect: true });\n        document.getElementById('login-password').value = '';\n        await startAuthenticatedSession();\n      } catch (err) {\n        errEl.textContent = err.message;\n        errEl.classList.remove('hidden');\n      }\n    });\n\n    document.getElementById('btn-logout').addEventListener('click', async () => {\n      try { await global.ITCApi.post('/api/auth/logout', {}); } catch (_) {}\n      state.bootstrap = null;\n      showLogin('');\n      toast('Đã đăng xuất an toàn.');\n    });\n\n    document.getElementById('btn-change-pw').addEventListener('click', () => {\n      openModal(`\n        <div class=\"modal-head\"><h3 class=\"card-title\">Đổi mật khẩu tài khoản</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n        <form id=\"chg-pw-form\">\n          <div class=\"modal-body form-stack\">\n            <div class=\"field\"><label>Mật khẩu hiện tại *</label><input name=\"cur\" type=\"password\" required></div>\n            <div class=\"field\"><label>Mật khẩu mới (&ge;8 ký tự) *</label><input name=\"next\" type=\"password\" required minlength=\"8\"></div>\n          </div>\n          <div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"submit\" class=\"btn btn-primary\">Đổi mật khẩu</button></div>\n        </form>\n      `, (dialog) => {\n        dialog.querySelector('#chg-pw-form').addEventListener('submit', async (e) => {\n          e.preventDefault();\n          const fd = new FormData(e.target);\n          try {\n            await global.ITCApi.post('/api/auth/change-password', { currentPassword: fd.get('cur'), newPassword: fd.get('next') });\n            closeModal();\n            toast('Đã đổi mật khẩu thành công.');\n          } catch (err) { toast(err.message, 'error'); }\n        });\n      });\n    });\n\n    document.getElementById('global-intake-year').addEventListener('change', (e) => {\n      state.intakeYear = e.target.value;\n      toast(`Đã chuyển sang Niên khóa ${state.intakeYear} (dữ liệu cô lập hoàn toàn theo năm).`);\n      refreshCurrentTab();\n    });\n\n    document.getElementById('sidebar-open-btn').addEventListener('click', () => {\n      document.getElementById('sidebar').classList.add('open');\n      document.getElementById('sidebar-backdrop').classList.remove('hidden');\n    });\n    document.getElementById('sidebar-close-btn').addEventListener('click', closeMobileSidebar);\n    document.getElementById('sidebar-backdrop').addEventListener('click', closeMobileSidebar);\n  }\n\n  async function startAuthenticatedSession() {\n    await reloadBootstrap();\n    showApp();\n    global.ITCSync.start();\n    switchTab(0);\n  }\n\n  async function boot() {\n    wireGlobalEvents();\n    try {\n      await global.ITCApi.get('/api/auth/me', { skipAuthRedirect: true });\n      await startAuthenticatedSession();\n    } catch (_) {\n      showLogin('');\n    }\n  }\n\n  document.addEventListener('DOMContentLoaded', boot);\n})(window);\n"
   },
   "/js/charts.js": {
     "contentType": "application/javascript; charset=utf-8",
@@ -44,7 +44,7 @@ const STATIC_ASSETS = {
   },
   "/js/modules/admin.js": {
     "contentType": "application/javascript; charset=utf-8",
-    "body": "(function (global) {\n  'use strict';\n\n  const { esc, formatDateTime, toast } = global.ITCUtils;\n\n  global.ITCModules = global.ITCModules || {};\n  let activeSub = 'users';\n\n  global.ITCModules.admin = {\n    async render(container, ctx) {\n      if (!['super_admin', 'manager'].includes(ctx.bootstrap.user.role)) {\n        container.innerHTML = '<div class=\"alert alert-danger\">Bạn không có quyền truy cập phân hệ Quản trị & Server.</div>';\n        return;\n      }\n\n      const [usersRes, staffRes, yearsRes, auditRes, bkpRes, healthRes] = await Promise.all([\n        global.ITCApi.get('/api/admin/users'),\n        global.ITCApi.get('/api/admin/staff'),\n        global.ITCApi.get('/api/admin/intake-years'),\n        global.ITCApi.get('/api/admin/audit?limit=80'),\n        global.ITCApi.get('/api/backup'),\n        global.ITCApi.get('/api/health')\n      ]);\n\n      const isSuper = ctx.bootstrap.user.role === 'super_admin';\n\n      container.innerHTML = `\n        <div class=\"card\">\n          <div class=\"subtabs\">\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'users' ? 'active' : ''}\" data-adm-sub=\"users\">Tài khoản & Phân quyền RBAC</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'staff' ? 'active' : ''}\" data-adm-sub=\"staff\">Danh mục Nhân sự & Zalo Slot</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'years' ? 'active' : ''}\" data-adm-sub=\"years\">Niên khóa tuyển sinh</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'backup' ? 'active' : ''}\" data-adm-sub=\"backup\">Sao lưu & Khôi phục</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'audit' ? 'active' : ''}\" data-adm-sub=\"audit\">Nhật ký Server (${auditRes.items.length})</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'health' ? 'active' : ''}\" data-adm-sub=\"health\">Sức khỏe Hệ thống</button>\n          </div>\n\n          <div id=\"adm-panel-body\"></div>\n        </div>\n      `;\n\n      container.querySelectorAll('[data-adm-sub]').forEach(btn => {\n        btn.addEventListener('click', () => { activeSub = btn.dataset.admSub; ctx.refreshCurrentTab(); });\n      });\n\n      const body = container.querySelector('#adm-panel-body');\n\n      if (activeSub === 'users') {\n        body.innerHTML = `\n          <div class=\"toolbar\">\n            <div><h3 class=\"card-title\">Quản lý Tài khoản, Phạm vi dữ liệu & Phiên máy chủ</h3><p class=\"card-sub\">Khóa tài khoản lập tức thu hồi phiên HTTP và ngắt kết nối WebSocket đang mở</p></div>\n            ${isSuper ? '<button type=\"button\" id=\"adm-new-user\" class=\"btn btn-primary btn-sm\">+ Thêm tài khoản & nhân sự mới</button>' : ''}\n          </div>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Họ tên & Email</th><th>Vai trò</th><th>Phạm vi hồ sơ</th><th>Quyền chức năng</th><th>Trạng thái</th><th></th></tr></thead>\n              <tbody>\n                ${usersRes.items.map(u => `\n                  <tr>\n                    <td><div class=\"font-bold\">${esc(u.full_name)}</div><div class=\"text-light\" style=\"font-size:11px\">${esc(u.email)}</div></td>\n                    <td><span class=\"badge ${u.role === 'super_admin' ? 'badge-indigo' : 'badge-blue'}\">${esc(u.role)}</span></td>\n                    <td><code>${esc(u.scope)}</code></td>\n                    <td style=\"font-size:11px\">\n                      KPI:${u.can_edit_kpi ? '✓' : '✗'} • Export:${u.can_export ? '✓' : '✗'} • Xóa:${u.can_delete ? '✓' : '✗'} • Duyệt BC:${u.can_approve_reports ? '✓' : '✗'} • Restore:${u.can_restore ? '✓' : '✗'}\n                    </td>\n                    <td><span class=\"badge ${u.active ? 'badge-green' : 'badge-red'}\">${u.active ? 'Hoạt động' : 'Đã khóa'}</span></td>\n                    <td class=\"text-right\">\n                      ${isSuper ? `<button type=\"button\" class=\"btn btn-xs btn-outline adm-edit-user\" data-id=\"${esc(u.id)}\">Sửa quyền / Khóa</button>` : ''}\n                    </td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n\n        if (isSuper) {\n          body.querySelector('#adm-new-user').addEventListener('click', () => {\n            ctx.openModal(`\n              <div class=\"modal-head\"><h3 class=\"card-title\">Thêm tài khoản & nhân sự mới</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n              <form id=\"adm-create-user-form\">\n                <div class=\"modal-body form-stack\">\n                  <div class=\"form-row\">\n                    <div class=\"field\"><label>Họ và tên *</label><input name=\"full_name\" type=\"text\" required></div>\n                    <div class=\"field\"><label>Email đăng nhập *</label><input name=\"email\" type=\"email\" required></div>\n                  </div>\n                  <div class=\"form-row\">\n                    <div class=\"field\"><label>Mật khẩu khởi tạo (&ge;8 ký tự) *</label><input name=\"password\" type=\"password\" required value=\"ItcStaff@2027!\"></div>\n                    <div class=\"field\"><label>Zalo Slot (tách biệt nhân sự)</label><input name=\"zalo_slot\" type=\"text\" placeholder=\"vd: Zalo 5\"></div>\n                  </div>\n                  <div class=\"form-row\">\n                    <div class=\"field\">\n                      <label>Vai trò</label>\n                      <select name=\"role\">\n                        <option value=\"consultant\">Chuyên viên Tư vấn</option>\n                        <option value=\"manager\">Lãnh đạo Phòng</option>\n                        <option value=\"super_admin\">Super Admin</option>\n                      </select>\n                    </div>\n                    <div class=\"field\">\n                      <label>Phạm vi hồ sơ</label>\n                      <select name=\"scope\">\n                        <option value=\"own\">own (chỉ hồ sơ được giao)</option>\n                        <option value=\"team\">team (nhóm tư vấn)</option>\n                        <option value=\"all\">all (toàn phòng)</option>\n                      </select>\n                    </div>\n                  </div>\n                  <div class=\"toolbar-group\">\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_export\" checked> Xuất Excel/Word</label>\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_edit_kpi\"> Sửa KPI</label>\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_delete\"> Xóa hồ sơ</label>\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_approve_reports\"> Duyệt báo cáo</label>\n                  </div>\n                </div>\n                <div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"submit\" class=\"btn btn-primary\">Tạo tài khoản</button></div>\n              </form>\n            `, (dialog) => {\n              dialog.querySelector('#adm-create-user-form').addEventListener('submit', async (e) => {\n                e.preventDefault();\n                const fd = new FormData(e.target);\n                try {\n                  await global.ITCApi.post('/api/admin/users', {\n                    full_name: fd.get('full_name'),\n                    email: fd.get('email'),\n                    password: fd.get('password'),\n                    zalo_slot: fd.get('zalo_slot'),\n                    role: fd.get('role'),\n                    scope: fd.get('scope'),\n                    can_export: fd.get('can_export') === 'on',\n                    can_edit_kpi: fd.get('can_edit_kpi') === 'on',\n                    can_delete: fd.get('can_delete') === 'on',\n                    can_approve_reports: fd.get('can_approve_reports') === 'on'\n                  });\n                  ctx.closeModal();\n                  toast('Đã tạo tài khoản & nhân sự mới (có thể phân công và lập KPI ngay).');\n                  await ctx.reloadBootstrap();\n                  ctx.refreshCurrentTab();\n                } catch (err) { toast(err.message, 'error'); }\n              });\n            });\n          });\n\n          body.querySelectorAll('.adm-edit-user').forEach(btn => {\n            btn.addEventListener('click', () => {\n              const u = usersRes.items.find(x => x.id === btn.dataset.id);\n              if (!u) return;\n              ctx.openModal(`\n                <div class=\"modal-head\"><h3 class=\"card-title\">Chỉnh quyền tài khoản: ${esc(u.email)}</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n                <form id=\"adm-edit-user-form\">\n                  <div class=\"modal-body form-stack\">\n                    <div class=\"form-row\">\n                      <div class=\"field\"><label>Họ tên hiển thị (đổi tên không mất dữ liệu)</label><input name=\"full_name\" type=\"text\" value=\"${esc(u.full_name)}\" required></div>\n                      <div class=\"field\"><label>Zalo Slot</label><input name=\"zalo_slot\" type=\"text\" value=\"${esc(u.zalo_slot)}\"></div>\n                    </div>\n                    <div class=\"form-row\">\n                      <div class=\"field\">\n                        <label>Vai trò</label>\n                        <select name=\"role\">\n                          <option value=\"consultant\" ${u.role === 'consultant' ? 'selected' : ''}>Chuyên viên Tư vấn</option>\n                          <option value=\"manager\" ${u.role === 'manager' ? 'selected' : ''}>Lãnh đạo Phòng</option>\n                          <option value=\"super_admin\" ${u.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>\n                        </select>\n                      </div>\n                      <div class=\"field\">\n                        <label>Phạm vi hồ sơ</label>\n                        <select name=\"scope\">\n                          <option value=\"own\" ${u.scope === 'own' ? 'selected' : ''}>own (chỉ hồ sơ được giao)</option>\n                          <option value=\"team\" ${u.scope === 'team' ? 'selected' : ''}>team (theo nhóm)</option>\n                          <option value=\"all\" ${u.scope === 'all' ? 'selected' : ''}>all (toàn phòng)</option>\n                        </select>\n                      </div>\n                      <div class=\"field\">\n                        <label>Trạng thái tài khoản</label>\n                        <select name=\"active\">\n                          <option value=\"1\" ${u.active ? 'selected' : ''}>Hoạt động</option>\n                          <option value=\"0\" ${!u.active ? 'selected' : ''}>KHÓA (ngắt phiên ngay lập tức)</option>\n                        </select>\n                      </div>\n                    </div>\n                    <div class=\"toolbar-group\">\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_export\" ${u.can_export ? 'checked' : ''}> Xuất dữ liệu</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_edit_kpi\" ${u.can_edit_kpi ? 'checked' : ''}> Sửa KPI</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_delete\" ${u.can_delete ? 'checked' : ''}> Xóa hồ sơ</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_approve_reports\" ${u.can_approve_reports ? 'checked' : ''}> Duyệt báo cáo</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_restore\" ${u.can_restore ? 'checked' : ''}> Khôi phục hệ thống</label>\n                    </div>\n                    <div class=\"field\"><label>Đặt lại mật khẩu mới (để trống nếu không đổi)</label><input name=\"resetPassword\" type=\"password\" placeholder=\"Tối thiểu 8 ký tự\"></div>\n                  </div>\n                  <div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"submit\" class=\"btn btn-primary\">Lưu thay đổi</button></div>\n                </form>\n              `, (dialog) => {\n                dialog.querySelector('#adm-edit-user-form').addEventListener('submit', async (e) => {\n                  e.preventDefault();\n                  const fd = new FormData(e.target);\n                  try {\n                    await global.ITCApi.patch(`/api/admin/users/${encodeURIComponent(u.id)}`, {\n                      full_name: fd.get('full_name'),\n                      zalo_slot: fd.get('zalo_slot'),\n                      role: fd.get('role'),\n                      scope: fd.get('scope'),\n                      active: fd.get('active') === '1',\n                      can_export: fd.get('can_export') === 'on',\n                      can_edit_kpi: fd.get('can_edit_kpi') === 'on',\n                      can_delete: fd.get('can_delete') === 'on',\n                      can_approve_reports: fd.get('can_approve_reports') === 'on',\n                      can_restore: fd.get('can_restore') === 'on',\n                      resetPassword: fd.get('resetPassword') || undefined\n                    });\n                    ctx.closeModal();\n                    toast('Đã cập nhật quyền tài khoản.');\n                    await ctx.reloadBootstrap();\n                    ctx.refreshCurrentTab();\n                  } catch (err) { toast(err.message, 'error'); }\n                });\n              });\n            });\n          });\n        }\n      }\n\n      if (activeSub === 'staff') {\n        body.innerHTML = `\n          <h3 class=\"card-title mb-2\">Danh mục Nhân sự (ID ổn định, tách biệt Zalo Slot)</h3>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>ID ổn định</th><th>Họ tên</th><th>Zalo Slot</th><th>Nhóm</th><th>Trạng thái</th><th></th></tr></thead>\n              <tbody>\n                ${staffRes.items.map(s => `\n                  <tr>\n                    <td class=\"font-mono\">${esc(s.id)}</td>\n                    <td><input type=\"text\" class=\"stf-name input-inline\" data-id=\"${esc(s.id)}\" value=\"${esc(s.full_name)}\"></td>\n                    <td><input type=\"text\" class=\"stf-zalo input-inline\" data-id=\"${esc(s.id)}\" value=\"${esc(s.zalo_slot)}\"></td>\n                    <td><input type=\"text\" class=\"stf-team input-inline\" data-id=\"${esc(s.id)}\" value=\"${esc(s.team)}\"></td>\n                    <td><span class=\"badge ${s.active ? 'badge-green' : 'badge-gray'}\">${s.active ? 'Đang làm' : 'Nghỉ'}</span></td>\n                    <td class=\"text-right\"><button type=\"button\" class=\"btn btn-xs btn-primary stf-save\" data-id=\"${esc(s.id)}\">Lưu</button></td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n        body.querySelectorAll('.stf-save').forEach(btn => {\n          btn.addEventListener('click', async () => {\n            const id = btn.dataset.id;\n            const tr = btn.closest('tr');\n            try {\n              await global.ITCApi.patch(`/api/admin/staff/${encodeURIComponent(id)}`, {\n                full_name: tr.querySelector('.stf-name').value.trim(),\n                zalo_slot: tr.querySelector('.stf-zalo').value.trim(),\n                team: tr.querySelector('.stf-team').value.trim()\n              });\n              toast('Đã cập nhật nhân sự (giữ nguyên toàn bộ hồ sơ & KPI theo ID).');\n              await ctx.reloadBootstrap();\n            } catch (err) { toast(err.message, 'error'); }\n          });\n        });\n      }\n\n      if (activeSub === 'years') {\n        body.innerHTML = `\n          <form id=\"adm-new-year-form\" class=\"form-row mb-2\">\n            <div class=\"field\" style=\"max-width:140px\"><label>Năm mới</label><input name=\"year\" type=\"text\" placeholder=\"2030\" required></div>\n            <div class=\"field\"><label>Nhãn hiển thị</label><input name=\"label\" type=\"text\" placeholder=\"Niên khóa 2030 (11/2029 - 10/2030)\"></div>\n            <button type=\"submit\" class=\"btn btn-primary btn-sm\">+ Mở niên khóa mới</button>\n          </form>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Niên khóa</th><th>Nhãn</th><th>Chu kỳ 12 tháng</th><th>Trạng thái</th><th></th></tr></thead>\n              <tbody>\n                ${yearsRes.items.map(y => `\n                  <tr>\n                    <td class=\"font-bold\">${esc(y.year)}</td>\n                    <td>${esc(y.label)}</td>\n                    <td>${esc(y.start_month)} → ${esc(y.end_month)}</td>\n                    <td><span class=\"badge ${y.status === 'open' ? 'badge-green' : 'badge-red'}\">${esc(y.status)}</span></td>\n                    <td class=\"text-right\">\n                      ${isSuper ? `<button type=\"button\" class=\"btn btn-xs btn-outline adm-toggle-yr\" data-yr=\"${esc(y.year)}\" data-next=\"${y.status === 'open' ? 'closed' : 'open'}\">${y.status === 'open' ? 'Khóa sổ năm' : 'Mở lại năm'}</button>` : ''}\n                    </td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n        body.querySelector('#adm-new-year-form').addEventListener('submit', async (e) => {\n          e.preventDefault();\n          const fd = new FormData(e.target);\n          try {\n            await global.ITCApi.post('/api/admin/intake-years', { year: fd.get('year'), label: fd.get('label') });\n            toast('Đã mở niên khóa mới.');\n            await ctx.reloadBootstrap();\n            ctx.refreshCurrentTab();\n          } catch (err) { toast(err.message, 'error'); }\n        });\n        body.querySelectorAll('.adm-toggle-yr').forEach(btn => {\n          btn.addEventListener('click', async () => {\n            try {\n              await global.ITCApi.patch(`/api/admin/intake-years/${encodeURIComponent(btn.dataset.yr)}`, { status: btn.dataset.next });\n              toast('Đã đổi trạng thái niên khóa.');\n              await ctx.reloadBootstrap();\n              ctx.refreshCurrentTab();\n            } catch (err) { toast(err.message, 'error'); }\n          });\n        });\n      }\n\n      if (activeSub === 'backup') {\n        body.innerHTML = `\n          <div class=\"toolbar\">\n            <div>\n              <h3 class=\"card-title\">Sao lưu có phiên bản & Khôi phục nguyên tử (SQLite + JSON Checksum)</h3>\n              <p class=\"card-sub\">Mỗi bản sao lưu có tên riêng theo dấu thời gian (không ghi đè trong ngày). Khôi phục tự tạo checkpoint và yêu cầu xác thực tăng cường.</p>\n            </div>\n            <div class=\"toolbar-group\">\n              <button type=\"button\" id=\"bkp-btn-create\" class=\"btn btn-primary btn-sm\">+ Tạo bản sao lưu ngay</button>\n              ${isSuper ? '<button type=\"button\" id=\"bkp-btn-restore-file\" class=\"btn btn-warn btn-sm\">Khôi phục từ tệp JSON...</button>' : ''}\n            </div>\n          </div>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Tên tệp sao lưu</th><th>Loại</th><th>Schema</th><th>Kích thước</th><th>Thời điểm</th><th class=\"text-right\">Thao tác</th></tr></thead>\n              <tbody>\n                ${bkpRes.items.map(b => `\n                  <tr>\n                    <td class=\"font-mono\">${esc(b.filename)}</td>\n                    <td><span class=\"badge badge-blue\">${esc(b.backup_type)}</span></td>\n                    <td>v${b.schema_version}</td>\n                    <td>${Math.round(b.size_bytes / 1024)} KB</td>\n                    <td>${esc(formatDateTime(b.created_at))}</td>\n                    <td class=\"text-right\" style=\"white-space:nowrap\">\n                      ${isSuper ? `<a class=\"btn btn-xs btn-outline\" href=\"/api/backup/${encodeURIComponent(b.filename)}/download\">Tải bản ngoài máy</a>` : ''}\n                      ${isSuper ? `<button type=\"button\" class=\"btn btn-xs btn-warn bkp-restore-server\" data-file=\"${esc(b.filename)}\">Khôi phục</button>` : ''}\n                    </td>\n                  </tr>\n                `).join('') || '<tr><td colspan=\"6\" class=\"text-center text-light\">Chưa có bản sao lưu nào. Nhấn \"Tạo bản sao lưu ngay\".</td></tr>'}\n              </tbody>\n            </table>\n          </div>`;\n\n        body.querySelector('#bkp-btn-create').addEventListener('click', async () => {\n          try {\n            const res = await global.ITCApi.post('/api/backup', {});\n            toast(`Đã tạo sao lưu ${res.backup.filename}`);\n            ctx.refreshCurrentTab();\n          } catch (err) { toast(err.message, 'error'); }\n        });\n\n        const openRestoreDialog = (filename = null) => {\n          ctx.openModal(`\n            <div class=\"modal-head\"><h3 class=\"card-title\">Khôi phục dữ liệu hệ thống (Yêu cầu xác thực Super Admin)</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n            <div class=\"modal-body form-stack\">\n              ${filename\n                ? `<div class=\"alert alert-info\">Khôi phục từ tệp trên máy chủ: <strong>${esc(filename)}</strong></div>`\n                : `<div class=\"field\"><label>Chọn tệp backup JSON (schemaVersion & checksum)</label><input id=\"rst-file\" type=\"file\" accept=\".json\"></div>`}\n              <button type=\"button\" id=\"rst-btn-dryrun\" class=\"btn btn-outline btn-sm\">1. Kiểm thử toàn vẹn & Tác động (Dry-run)</button>\n              <div id=\"rst-dryrun-out\"></div>\n              <div class=\"form-row\">\n                <div class=\"field\"><label>Mật khẩu Super Admin (hoặc để trống nếu nhập PIN)</label><input id=\"rst-pw\" type=\"password\"></div>\n                <div class=\"field\"><label>Hoặc Mã PIN Quản trị</label><input id=\"rst-pin\" type=\"password\"></div>\n              </div>\n            </div>\n            <div class=\"modal-foot\">\n              <button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button>\n              <button type=\"button\" id=\"rst-btn-exec\" class=\"btn btn-danger\" disabled>2. Xác nhận khôi phục</button>\n            </div>\n          `, (dialog) => {\n            let parsedPayload = null;\n            const out = dialog.querySelector('#rst-dryrun-out');\n            const execBtn = dialog.querySelector('#rst-btn-exec');\n\n            const getReqPayload = async () => {\n              if (filename) return { filename };\n              if (!parsedPayload) {\n                const f = dialog.querySelector('#rst-file').files[0];\n                if (!f) throw new Error('Vui lòng chọn tệp backup JSON.');\n                parsedPayload = JSON.parse(await f.text());\n              }\n              return { backupPayload: parsedPayload };\n            };\n\n            dialog.querySelector('#rst-btn-dryrun').addEventListener('click', async () => {\n              try {\n                const base = await getReqPayload();\n                const res = await global.ITCApi.post('/api/backup/restore', { ...base, dryRun: true });\n                execBtn.disabled = false;\n                out.innerHTML = `<div class=\"alert alert-success\">Hợp lệ (Schema v${res.schemaVersion}). Dữ liệu sẽ khôi phục: ${esc(JSON.stringify(res.impactSummary))}</div>`;\n              } catch (err) {\n                execBtn.disabled = true;\n                out.innerHTML = `<div class=\"alert alert-danger\">${esc(err.message)}</div>`;\n              }\n            });\n\n            execBtn.addEventListener('click', async () => {\n              try {\n                const base = await getReqPayload();\n                const res = await global.ITCApi.post('/api/backup/restore', {\n                  ...base,\n                  dryRun: false,\n                  confirmPassword: dialog.querySelector('#rst-pw').value,\n                  confirmPin: dialog.querySelector('#rst-pin').value\n                });\n                ctx.closeModal();\n                toast(`Khôi phục thành công! Checkpoint tự động: ${res.checkpoint}`);\n                await ctx.reloadBootstrap();\n                ctx.refreshCurrentTab();\n              } catch (err) { toast(err.message, 'error'); }\n            });\n          });\n        };\n\n        const btnFile = body.querySelector('#bkp-btn-restore-file');\n        if (btnFile) btnFile.addEventListener('click', () => openRestoreDialog(null));\n        body.querySelectorAll('.bkp-restore-server').forEach(btn => {\n          btn.addEventListener('click', () => openRestoreDialog(btn.dataset.file));\n        });\n      }\n\n      if (activeSub === 'audit') {\n        body.innerHTML = `\n          <h3 class=\"card-title mb-2\">Nhật ký kiểm toán Server (Chỉ đọc — ghi trong giao dịch DB, client không thể sửa/xóa)</h3>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Thời điểm</th><th>Tác nhân</th><th>Hành động</th><th>Đối tượng</th><th>Tóm tắt</th><th>IP</th></tr></thead>\n              <tbody>\n                ${auditRes.items.map(a => `\n                  <tr>\n                    <td style=\"white-space:nowrap;font-size:12px\">${esc(formatDateTime(a.occurred_at))}</td>\n                    <td><div class=\"font-bold\" style=\"font-size:12px\">${esc(a.actor_name || 'System')}</div><div class=\"text-light\" style=\"font-size:11px\">${esc(a.actor_email)}</div></td>\n                    <td><span class=\"badge badge-gray\">${esc(a.action)}</span></td>\n                    <td class=\"font-mono\">${esc(a.entity_type)}${a.entity_id ? ':' + esc(a.entity_id.slice(0, 12)) : ''}</td>\n                    <td style=\"font-size:12px\">${esc(a.summary)}</td>\n                    <td class=\"font-mono\">${esc(a.ip_address || '—')}</td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n      }\n\n      if (activeSub === 'health') {\n        const h = healthRes;\n        body.innerHTML = `\n          <div class=\"grid-4 mb-2\">\n            <div class=\"stat-card\"><div class=\"stat-label\">Trạng thái Server</div><div class=\"stat-value text-success\">${esc(h.status.toUpperCase())}</div><div class=\"stat-note\">Uptime: ${h.uptimeSeconds}s • v${esc(h.appVersion)}</div></div>\n            <div class=\"stat-card\"><div class=\"stat-label\">Cơ sở dữ liệu SQLite</div><div class=\"stat-value\">${Math.round((h.db.sizeBytes || 0) / 1024)} KB</div><div class=\"stat-note\">Lỗi ghi: ${h.db.writeErrorCount} • Schema v${h.schemaVersion}</div></div>\n            <div class=\"stat-card\"><div class=\"stat-label\">Kết nối Realtime WS</div><div class=\"stat-value\">${h.realtime.onlineUsers} người</div><div class=\"stat-note\">${h.realtime.totalConnections} tab/kết nối đang mở</div></div>\n            <div class=\"stat-card\"><div class=\"stat-label\">Sao lưu gần nhất</div><div class=\"stat-value\">${h.backups.count} bản</div><div class=\"stat-note\">${h.backups.latest ? esc(formatDateTime(h.backups.latest.created_at)) : 'Chưa tạo backup'}</div></div>\n          </div>\n          <div class=\"card\" style=\"background:var(--surface-alt)\">\n            <div class=\"font-bold mb-2\">Thống kê bản ghi trong hệ thống</div>\n            <div class=\"font-mono\">${esc(JSON.stringify(h.counts, null, 2))}</div>\n          </div>`;\n      }\n    }\n  };\n})(window);\n"
+    "body": "(function (global) {\n  'use strict';\n\n  const { esc, formatDateTime, toast } = global.ITCUtils;\n\n  global.ITCModules = global.ITCModules || {};\n  let activeSub = 'users';\n\n  global.ITCModules.admin = {\n    async render(container, ctx) {\n      if (!['super_admin', 'manager'].includes(ctx.bootstrap.user.role)) {\n        container.innerHTML = '<div class=\"alert alert-danger\">Bạn không có quyền truy cập phân hệ Quản trị & Server.</div>';\n        return;\n      }\n\n      const [usersRes, staffRes, yearsRes, auditRes, bkpRes, healthRes] = await Promise.all([\n        global.ITCApi.get('/api/admin/users'),\n        global.ITCApi.get('/api/admin/staff'),\n        global.ITCApi.get('/api/admin/intake-years'),\n        global.ITCApi.get('/api/admin/audit?limit=80'),\n        global.ITCApi.get('/api/backup'),\n        global.ITCApi.get('/api/health')\n      ]);\n\n      const isSuper = ctx.bootstrap.user.role === 'super_admin';\n\n      container.innerHTML = `\n        <div class=\"card\">\n          <div class=\"subtabs\">\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'users' ? 'active' : ''}\" data-adm-sub=\"users\">Tài khoản & Phân quyền RBAC</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'staff' ? 'active' : ''}\" data-adm-sub=\"staff\">Danh mục Nhân sự & Zalo Slot</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'years' ? 'active' : ''}\" data-adm-sub=\"years\">Niên khóa tuyển sinh</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'backup' ? 'active' : ''}\" data-adm-sub=\"backup\">Sao lưu & Khôi phục</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'audit' ? 'active' : ''}\" data-adm-sub=\"audit\">Nhật ký Server (${auditRes.items.length})</button>\n            <button type=\"button\" class=\"subtab-btn ${activeSub === 'health' ? 'active' : ''}\" data-adm-sub=\"health\">Sức khỏe Hệ thống</button>\n          </div>\n\n          <div id=\"adm-panel-body\"></div>\n        </div>\n      `;\n\n      container.querySelectorAll('[data-adm-sub]').forEach(btn => {\n        btn.addEventListener('click', () => { activeSub = btn.dataset.admSub; ctx.refreshCurrentTab(); });\n      });\n\n      const body = container.querySelector('#adm-panel-body');\n\n      if (activeSub === 'users') {\n        body.innerHTML = `\n          <div class=\"toolbar\">\n            <div><h3 class=\"card-title\">Quản lý Tài khoản, Phạm vi dữ liệu & Phiên máy chủ</h3><p class=\"card-sub\">Khóa tài khoản lập tức thu hồi phiên HTTP và ngắt kết nối WebSocket đang mở</p></div>\n            ${isSuper ? '<button type=\"button\" id=\"adm-new-user\" class=\"btn btn-primary btn-sm\">+ Thêm tài khoản & nhân sự mới</button>' : ''}\n          </div>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Họ tên & Email</th><th>Vai trò</th><th>Phạm vi hồ sơ</th><th>Quyền chức năng</th><th>Trạng thái</th><th></th></tr></thead>\n              <tbody>\n                ${usersRes.items.map(u => `\n                  <tr>\n                    <td><div class=\"font-bold\">${esc(u.full_name)}</div><div class=\"text-light\" style=\"font-size:11px\">${esc(u.email)}</div></td>\n                    <td><span class=\"badge ${u.role === 'super_admin' ? 'badge-indigo' : 'badge-blue'}\">${esc(u.role)}</span></td>\n                    <td><code>${esc(u.scope)}</code></td>\n                    <td style=\"font-size:11px\">\n                      KPI:${u.can_edit_kpi ? '✓' : '✗'} • Export:${u.can_export ? '✓' : '✗'} • Xóa:${u.can_delete ? '✓' : '✗'} • Duyệt BC:${u.can_approve_reports ? '✓' : '✗'} • Restore:${u.can_restore ? '✓' : '✗'}\n                    </td>\n                    <td><span class=\"badge ${u.active ? 'badge-green' : 'badge-red'}\">${u.active ? 'Hoạt động' : 'Đã khóa'}</span></td>\n                    <td class=\"text-right\">\n                      ${isSuper ? `<button type=\"button\" class=\"btn btn-xs btn-outline adm-edit-user\" data-id=\"${esc(u.id)}\">Sửa quyền / Khóa</button>` : ''}\n                    </td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n\n        if (isSuper) {\n          body.querySelector('#adm-new-user').addEventListener('click', () => {\n            ctx.openModal(`\n              <div class=\"modal-head\"><h3 class=\"card-title\">Thêm tài khoản & nhân sự mới</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n              <form id=\"adm-create-user-form\">\n                <div class=\"modal-body form-stack\">\n                  <div class=\"form-row\">\n                    <div class=\"field\"><label>Họ và tên *</label><input name=\"full_name\" type=\"text\" required></div>\n                    <div class=\"field\"><label>Email đăng nhập *</label><input name=\"email\" type=\"email\" required></div>\n                  </div>\n                  <div class=\"form-row\">\n                    <div class=\"field\"><label>Mật khẩu khởi tạo (&ge;8 ký tự) *</label><input name=\"password\" type=\"password\" required value=\"ItcStaff@2027!\"></div>\n                    <div class=\"field\"><label>Zalo Slot (tách biệt nhân sự)</label><input name=\"zalo_slot\" type=\"text\" placeholder=\"vd: Zalo 5\"></div>\n                  </div>\n                  <div class=\"form-row\">\n                    <div class=\"field\">\n                      <label>Vai trò</label>\n                      <select name=\"role\">\n                        <option value=\"consultant\">Chuyên viên Tư vấn</option>\n                        <option value=\"manager\">Lãnh đạo Phòng</option>\n                        <option value=\"super_admin\">Super Admin</option>\n                      </select>\n                    </div>\n                    <div class=\"field\">\n                      <label>Phạm vi hồ sơ</label>\n                      <select name=\"scope\">\n                        <option value=\"own\">own (chỉ hồ sơ được giao)</option>\n                        <option value=\"team\">team (nhóm tư vấn)</option>\n                        <option value=\"all\">all (toàn phòng)</option>\n                      </select>\n                    </div>\n                  </div>\n                  <div class=\"toolbar-group\">\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_export\" checked> Xuất Excel/Word</label>\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_edit_kpi\"> Sửa KPI</label>\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_delete\"> Xóa hồ sơ</label>\n                    <label class=\"check-row\"><input type=\"checkbox\" name=\"can_approve_reports\"> Duyệt báo cáo</label>\n                  </div>\n                </div>\n                <div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"submit\" class=\"btn btn-primary\">Tạo tài khoản</button></div>\n              </form>\n            `, (dialog) => {\n              dialog.querySelector('#adm-create-user-form').addEventListener('submit', async (e) => {\n                e.preventDefault();\n                const fd = new FormData(e.target);\n                try {\n                  await global.ITCApi.post('/api/admin/users', {\n                    full_name: fd.get('full_name'),\n                    email: fd.get('email'),\n                    password: fd.get('password'),\n                    zalo_slot: fd.get('zalo_slot'),\n                    role: fd.get('role'),\n                    scope: fd.get('scope'),\n                    can_export: fd.get('can_export') === 'on',\n                    can_edit_kpi: fd.get('can_edit_kpi') === 'on',\n                    can_delete: fd.get('can_delete') === 'on',\n                    can_approve_reports: fd.get('can_approve_reports') === 'on'\n                  });\n                  ctx.closeModal();\n                  toast('Đã tạo tài khoản & nhân sự mới (có thể phân công và lập KPI ngay).');\n                  await ctx.reloadBootstrap();\n                  ctx.refreshCurrentTab();\n                } catch (err) { toast(err.message, 'error'); }\n              });\n            });\n          });\n\n          body.querySelectorAll('.adm-edit-user').forEach(btn => {\n            btn.addEventListener('click', () => {\n              const u = usersRes.items.find(x => x.id === btn.dataset.id);\n              if (!u) return;\n              ctx.openModal(`\n                <div class=\"modal-head\"><h3 class=\"card-title\">Chỉnh quyền tài khoản: ${esc(u.email)}</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n                <form id=\"adm-edit-user-form\">\n                  <div class=\"modal-body form-stack\">\n                    <div class=\"form-row\">\n                      <div class=\"field\"><label>Họ tên hiển thị (đổi tên không mất dữ liệu)</label><input name=\"full_name\" type=\"text\" value=\"${esc(u.full_name)}\" required></div>\n                      <div class=\"field\"><label>Zalo Slot</label><input name=\"zalo_slot\" type=\"text\" value=\"${esc(u.zalo_slot)}\"></div>\n                    </div>\n                    <div class=\"form-row\">\n                      <div class=\"field\">\n                        <label>Vai trò</label>\n                        <select name=\"role\">\n                          <option value=\"consultant\" ${u.role === 'consultant' ? 'selected' : ''}>Chuyên viên Tư vấn</option>\n                          <option value=\"manager\" ${u.role === 'manager' ? 'selected' : ''}>Lãnh đạo Phòng</option>\n                          <option value=\"super_admin\" ${u.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>\n                        </select>\n                      </div>\n                      <div class=\"field\">\n                        <label>Phạm vi hồ sơ</label>\n                        <select name=\"scope\">\n                          <option value=\"own\" ${u.scope === 'own' ? 'selected' : ''}>own (chỉ hồ sơ được giao)</option>\n                          <option value=\"team\" ${u.scope === 'team' ? 'selected' : ''}>team (theo nhóm)</option>\n                          <option value=\"all\" ${u.scope === 'all' ? 'selected' : ''}>all (toàn phòng)</option>\n                        </select>\n                      </div>\n                      <div class=\"field\">\n                        <label>Trạng thái tài khoản</label>\n                        <select name=\"active\">\n                          <option value=\"1\" ${u.active ? 'selected' : ''}>Hoạt động</option>\n                          <option value=\"0\" ${!u.active ? 'selected' : ''}>KHÓA (ngắt phiên ngay lập tức)</option>\n                        </select>\n                      </div>\n                    </div>\n                    <div class=\"toolbar-group\">\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_export\" ${u.can_export ? 'checked' : ''}> Xuất dữ liệu</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_edit_kpi\" ${u.can_edit_kpi ? 'checked' : ''}> Sửa KPI</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_delete\" ${u.can_delete ? 'checked' : ''}> Xóa hồ sơ</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_approve_reports\" ${u.can_approve_reports ? 'checked' : ''}> Duyệt báo cáo</label>\n                      <label class=\"check-row\"><input type=\"checkbox\" name=\"can_restore\" ${u.can_restore ? 'checked' : ''}> Khôi phục hệ thống</label>\n                    </div>\n                    <div class=\"field\"><label>Đặt lại mật khẩu mới (để trống nếu không đổi)</label><input name=\"resetPassword\" type=\"password\" placeholder=\"Tối thiểu 8 ký tự\"></div>\n                  </div>\n                  <div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"submit\" class=\"btn btn-primary\">Lưu thay đổi</button></div>\n                </form>\n              `, (dialog) => {\n                dialog.querySelector('#adm-edit-user-form').addEventListener('submit', async (e) => {\n                  e.preventDefault();\n                  const fd = new FormData(e.target);\n                  try {\n                    await global.ITCApi.patch(`/api/admin/users/${encodeURIComponent(u.id)}`, {\n                      full_name: fd.get('full_name'),\n                      zalo_slot: fd.get('zalo_slot'),\n                      role: fd.get('role'),\n                      scope: fd.get('scope'),\n                      active: fd.get('active') === '1',\n                      can_export: fd.get('can_export') === 'on',\n                      can_edit_kpi: fd.get('can_edit_kpi') === 'on',\n                      can_delete: fd.get('can_delete') === 'on',\n                      can_approve_reports: fd.get('can_approve_reports') === 'on',\n                      can_restore: fd.get('can_restore') === 'on',\n                      resetPassword: fd.get('resetPassword') || undefined\n                    });\n                    ctx.closeModal();\n                    toast('Đã cập nhật quyền tài khoản.');\n                    await ctx.reloadBootstrap();\n                    ctx.refreshCurrentTab();\n                  } catch (err) { toast(err.message, 'error'); }\n                });\n              });\n            });\n          });\n        }\n      }\n\n      if (activeSub === 'staff') {\n        body.innerHTML = `\n          <h3 class=\"card-title mb-2\">Danh mục Nhân sự (ID ổn định, tách biệt Zalo Slot)</h3>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>ID ổn định</th><th>Họ tên</th><th>Zalo Slot</th><th>Nhóm</th><th>Trạng thái</th><th></th></tr></thead>\n              <tbody>\n                ${staffRes.items.map(s => `\n                  <tr>\n                    <td class=\"font-mono\">${esc(s.id)}</td>\n                    <td><input type=\"text\" class=\"stf-name input-inline\" data-id=\"${esc(s.id)}\" value=\"${esc(s.full_name)}\"></td>\n                    <td><input type=\"text\" class=\"stf-zalo input-inline\" data-id=\"${esc(s.id)}\" value=\"${esc(s.zalo_slot)}\"></td>\n                    <td><input type=\"text\" class=\"stf-team input-inline\" data-id=\"${esc(s.id)}\" value=\"${esc(s.team)}\"></td>\n                    <td><span class=\"badge ${s.active ? 'badge-green' : 'badge-gray'}\">${s.active ? 'Đang làm' : 'Nghỉ'}</span></td>\n                    <td class=\"text-right\"><button type=\"button\" class=\"btn btn-xs btn-primary stf-save\" data-id=\"${esc(s.id)}\">Lưu</button></td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n        body.querySelectorAll('.stf-save').forEach(btn => {\n          btn.addEventListener('click', async () => {\n            const id = btn.dataset.id;\n            const tr = btn.closest('tr');\n            try {\n              await global.ITCApi.patch(`/api/admin/staff/${encodeURIComponent(id)}`, {\n                full_name: tr.querySelector('.stf-name').value.trim(),\n                zalo_slot: tr.querySelector('.stf-zalo').value.trim(),\n                team: tr.querySelector('.stf-team').value.trim()\n              });\n              toast('Đã cập nhật nhân sự (giữ nguyên toàn bộ hồ sơ & KPI theo ID).');\n              await ctx.reloadBootstrap();\n            } catch (err) { toast(err.message, 'error'); }\n          });\n        });\n      }\n\n      if (activeSub === 'years') {\n        body.innerHTML = `\n          <form id=\"adm-new-year-form\" class=\"form-row mb-2\">\n            <div class=\"field\" style=\"max-width:140px\"><label>Năm mới</label><input name=\"year\" type=\"text\" placeholder=\"2030\" required></div>\n            <div class=\"field\"><label>Nhãn hiển thị</label><input name=\"label\" type=\"text\" placeholder=\"Niên khóa 2030 (11/2029 - 10/2030)\"></div>\n            <button type=\"submit\" class=\"btn btn-primary btn-sm\">+ Mở niên khóa mới</button>\n          </form>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Niên khóa</th><th>Nhãn</th><th>Chu kỳ 12 tháng</th><th>Trạng thái</th><th></th></tr></thead>\n              <tbody>\n                ${yearsRes.items.map(y => `\n                  <tr>\n                    <td class=\"font-bold\">${esc(y.year)}</td>\n                    <td>${esc(y.label)}</td>\n                    <td>${esc(y.start_month)} → ${esc(y.end_month)}</td>\n                    <td><span class=\"badge ${y.status === 'open' ? 'badge-green' : 'badge-red'}\">${esc(y.status)}</span></td>\n                    <td class=\"text-right\">\n                      ${isSuper ? `<button type=\"button\" class=\"btn btn-xs btn-outline adm-toggle-yr\" data-yr=\"${esc(y.year)}\" data-next=\"${y.status === 'open' ? 'closed' : 'open'}\">${y.status === 'open' ? 'Khóa sổ năm' : 'Mở lại năm'}</button>` : ''}\n                    </td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n        body.querySelector('#adm-new-year-form').addEventListener('submit', async (e) => {\n          e.preventDefault();\n          const fd = new FormData(e.target);\n          try {\n            await global.ITCApi.post('/api/admin/intake-years', { year: fd.get('year'), label: fd.get('label') });\n            toast('Đã mở niên khóa mới.');\n            await ctx.reloadBootstrap();\n            ctx.refreshCurrentTab();\n          } catch (err) { toast(err.message, 'error'); }\n        });\n        body.querySelectorAll('.adm-toggle-yr').forEach(btn => {\n          btn.addEventListener('click', async () => {\n            try {\n              await global.ITCApi.patch(`/api/admin/intake-years/${encodeURIComponent(btn.dataset.yr)}`, { status: btn.dataset.next });\n              toast('Đã đổi trạng thái niên khóa.');\n              await ctx.reloadBootstrap();\n              ctx.refreshCurrentTab();\n            } catch (err) { toast(err.message, 'error'); }\n          });\n        });\n      }\n\n      if (activeSub === 'backup') {\n        body.innerHTML = `\n          <div class=\"toolbar\">\n            <div>\n              <h3 class=\"card-title\">Sao lưu có phiên bản & Khôi phục nguyên tử (SQLite + JSON Checksum)</h3>\n              <p class=\"card-sub\">Mỗi bản sao lưu có tên riêng theo dấu thời gian (không ghi đè trong ngày). Khôi phục tự tạo checkpoint và yêu cầu xác thực tăng cường.</p>\n            </div>\n            <div class=\"toolbar-group\">\n              <button type=\"button\" id=\"bkp-btn-create\" class=\"btn btn-primary btn-sm\">+ Tạo bản sao lưu ngay</button>\n              ${isSuper ? '<button type=\"button\" id=\"bkp-btn-restore-file\" class=\"btn btn-warn btn-sm\">Khôi phục từ tệp JSON...</button><button type=\"button\" id=\"bkp-btn-clean-reset\" class=\"btn btn-danger-outline btn-sm\">Dọn sạch dữ liệu thử nghiệm</button>' : ''}\n            </div>\n          </div>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Tên tệp sao lưu</th><th>Loại</th><th>Schema</th><th>Kích thước</th><th>Thời điểm</th><th class=\"text-right\">Thao tác</th></tr></thead>\n              <tbody>\n                ${bkpRes.items.map(b => `\n                  <tr>\n                    <td class=\"font-mono\">${esc(b.filename)}</td>\n                    <td><span class=\"badge badge-blue\">${esc(b.backup_type)}</span></td>\n                    <td>v${b.schema_version}</td>\n                    <td>${Math.round(b.size_bytes / 1024)} KB</td>\n                    <td>${esc(formatDateTime(b.created_at))}</td>\n                    <td class=\"text-right\" style=\"white-space:nowrap\">\n                      ${isSuper ? `<a class=\"btn btn-xs btn-outline\" href=\"/api/backup/${encodeURIComponent(b.filename)}/download\">Tải bản ngoài máy</a>` : ''}\n                      ${isSuper ? `<button type=\"button\" class=\"btn btn-xs btn-warn bkp-restore-server\" data-file=\"${esc(b.filename)}\">Khôi phục</button>` : ''}\n                    </td>\n                  </tr>\n                `).join('') || '<tr><td colspan=\"6\" class=\"text-center text-light\">Chưa có bản sao lưu nào. Nhấn \"Tạo bản sao lưu ngay\".</td></tr>'}\n              </tbody>\n            </table>\n          </div>`;\n\n        body.querySelector('#bkp-btn-create').addEventListener('click', async () => {\n          try {\n            const res = await global.ITCApi.post('/api/backup', {});\n            toast(`Đã tạo sao lưu ${res.backup.filename}`);\n            ctx.refreshCurrentTab();\n          } catch (err) { toast(err.message, 'error'); }\n        });\n\n        const openRestoreDialog = (filename = null) => {\n          ctx.openModal(`\n            <div class=\"modal-head\"><h3 class=\"card-title\">Khôi phục dữ liệu hệ thống (Yêu cầu xác thực Super Admin)</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div>\n            <div class=\"modal-body form-stack\">\n              ${filename\n                ? `<div class=\"alert alert-info\">Khôi phục từ tệp trên máy chủ: <strong>${esc(filename)}</strong></div>`\n                : `<div class=\"field\"><label>Chọn tệp backup JSON (schemaVersion & checksum)</label><input id=\"rst-file\" type=\"file\" accept=\".json\"></div>`}\n              <button type=\"button\" id=\"rst-btn-dryrun\" class=\"btn btn-outline btn-sm\">1. Kiểm thử toàn vẹn & Tác động (Dry-run)</button>\n              <div id=\"rst-dryrun-out\"></div>\n              <div class=\"form-row\">\n                <div class=\"field\"><label>Mật khẩu Super Admin (hoặc để trống nếu nhập PIN)</label><input id=\"rst-pw\" type=\"password\"></div>\n                <div class=\"field\"><label>Hoặc Mã PIN Quản trị</label><input id=\"rst-pin\" type=\"password\"></div>\n              </div>\n            </div>\n            <div class=\"modal-foot\">\n              <button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button>\n              <button type=\"button\" id=\"rst-btn-exec\" class=\"btn btn-danger\" disabled>2. Xác nhận khôi phục</button>\n            </div>\n          `, (dialog) => {\n            let parsedPayload = null;\n            const out = dialog.querySelector('#rst-dryrun-out');\n            const execBtn = dialog.querySelector('#rst-btn-exec');\n\n            const getReqPayload = async () => {\n              if (filename) return { filename };\n              if (!parsedPayload) {\n                const f = dialog.querySelector('#rst-file').files[0];\n                if (!f) throw new Error('Vui lòng chọn tệp backup JSON.');\n                parsedPayload = JSON.parse(await f.text());\n              }\n              return { backupPayload: parsedPayload };\n            };\n\n            dialog.querySelector('#rst-btn-dryrun').addEventListener('click', async () => {\n              try {\n                const base = await getReqPayload();\n                const res = await global.ITCApi.post('/api/backup/restore', { ...base, dryRun: true });\n                execBtn.disabled = false;\n                out.innerHTML = `<div class=\"alert alert-success\">Hợp lệ (Schema v${res.schemaVersion}). Dữ liệu sẽ khôi phục: ${esc(JSON.stringify(res.impactSummary))}</div>`;\n              } catch (err) {\n                execBtn.disabled = true;\n                out.innerHTML = `<div class=\"alert alert-danger\">${esc(err.message)}</div>`;\n              }\n            });\n\n            execBtn.addEventListener('click', async () => {\n              try {\n                const base = await getReqPayload();\n                const res = await global.ITCApi.post('/api/backup/restore', {\n                  ...base,\n                  dryRun: false,\n                  confirmPassword: dialog.querySelector('#rst-pw').value,\n                  confirmPin: dialog.querySelector('#rst-pin').value\n                });\n                ctx.closeModal();\n                toast(`Khôi phục thành công! Checkpoint tự động: ${res.checkpoint}`);\n                await ctx.reloadBootstrap();\n                ctx.refreshCurrentTab();\n              } catch (err) { toast(err.message, 'error'); }\n            });\n          });\n        };\n\n        const btnFile = body.querySelector('#bkp-btn-restore-file');\n        if (btnFile) btnFile.addEventListener('click', () => openRestoreDialog(null));\n        const btnCleanReset = body.querySelector('#bkp-btn-clean-reset');\n        if (btnCleanReset) btnCleanReset.addEventListener('click', () => { ctx.openModal(`<div class=\"modal-head\"><h3 class=\"card-title text-danger\">Dọn sạch toàn bộ dữ liệu thử nghiệm về nguyên trạng</h3><button type=\"button\" class=\"icon-btn\" data-close-modal>✕</button></div><div class=\"modal-body form-stack\"><div class=\"alert alert-warn\">Thao tác này sẽ xóa toàn bộ hồ sơ thí sinh, tuyến tỉnh, Zalo, công việc, báo cáo thử nghiệm và tự tạo 1 bản sao lưu checkpoint trước khi xóa. <strong>Giữ nguyên</strong> 6 tài khoản, nhân sự, niên khóa và kế hoạch KPI 2027.</div><div class=\"form-row\"><div class=\"field\"><label>Mật khẩu Super Admin</label><input id=\"clr-pw\" type=\"password\"></div><div class=\"field\"><label>Hoặc Mã PIN Quản trị</label><input id=\"clr-pin\" type=\"password\"></div></div></div><div class=\"modal-foot\"><button type=\"button\" class=\"btn btn-outline\" data-close-modal>Hủy</button><button type=\"button\" id=\"clr-exec\" class=\"btn btn-danger\">Xác nhận dọn sạch về nguyên trạng</button></div>`, (dialog) => { dialog.querySelector('#clr-exec').addEventListener('click', async () => { try { const r = await global.ITCApi.post('/api/admin/reset-data', { confirmPassword: dialog.querySelector('#clr-pw').value, confirmPin: dialog.querySelector('#clr-pin').value }); ctx.closeModal(); toast('Đã dọn sạch dữ liệu về nguyên trạng! Checkpoint: ' + r.checkpoint); ctx.refreshCurrentTab(); } catch (err) { toast(err.message, 'error'); } }); }); });\n        body.querySelectorAll('.bkp-restore-server').forEach(btn => {\n          btn.addEventListener('click', () => openRestoreDialog(btn.dataset.file));\n        });\n      }\n\n      if (activeSub === 'audit') {\n        body.innerHTML = `\n          <h3 class=\"card-title mb-2\">Nhật ký kiểm toán Server (Chỉ đọc — ghi trong giao dịch DB, client không thể sửa/xóa)</h3>\n          <div class=\"table-wrap\">\n            <table>\n              <thead><tr><th>Thời điểm</th><th>Tác nhân</th><th>Hành động</th><th>Đối tượng</th><th>Tóm tắt</th><th>IP</th></tr></thead>\n              <tbody>\n                ${auditRes.items.map(a => `\n                  <tr>\n                    <td style=\"white-space:nowrap;font-size:12px\">${esc(formatDateTime(a.occurred_at))}</td>\n                    <td><div class=\"font-bold\" style=\"font-size:12px\">${esc(a.actor_name || 'System')}</div><div class=\"text-light\" style=\"font-size:11px\">${esc(a.actor_email)}</div></td>\n                    <td><span class=\"badge badge-gray\">${esc(a.action)}</span></td>\n                    <td class=\"font-mono\">${esc(a.entity_type)}${a.entity_id ? ':' + esc(a.entity_id.slice(0, 12)) : ''}</td>\n                    <td style=\"font-size:12px\">${esc(a.summary)}</td>\n                    <td class=\"font-mono\">${esc(a.ip_address || '—')}</td>\n                  </tr>\n                `).join('')}\n              </tbody>\n            </table>\n          </div>`;\n      }\n\n      if (activeSub === 'health') {\n        const h = healthRes;\n        body.innerHTML = `\n          <div class=\"grid-4 mb-2\">\n            <div class=\"stat-card\"><div class=\"stat-label\">Trạng thái Server</div><div class=\"stat-value text-success\">${esc(h.status.toUpperCase())}</div><div class=\"stat-note\">Uptime: ${h.uptimeSeconds}s • v${esc(h.appVersion)}</div></div>\n            <div class=\"stat-card\"><div class=\"stat-label\">${h.storage && h.storage.mode === 'postgresql+sqlite' ? 'PostgreSQL Cloud + SQLite' : 'Cơ sở dữ liệu SQLite Local'}</div><div class=\"stat-value\">${h.storage && h.storage.mode === 'postgresql+sqlite' ? 'PG rev #' + h.storage.pgRev : Math.round((h.db.sizeBytes || 0) / 1024) + ' KB'}</div><div class=\"stat-note\">Lỗi ghi: ${h.db.writeErrorCount} • Schema v${h.schemaVersion}${h.storage && h.storage.lastGzipBytes ? ' • ' + Math.round(h.storage.lastGzipBytes / 1024) + ' KB gz' : ''}</div></div>\n            <div class=\"stat-card\"><div class=\"stat-label\">Kết nối Realtime WS</div><div class=\"stat-value\">${h.realtime.onlineUsers} người</div><div class=\"stat-note\">${h.realtime.totalConnections} tab/kết nối đang mở</div></div>\n            <div class=\"stat-card\"><div class=\"stat-label\">Sao lưu gần nhất</div><div class=\"stat-value\">${h.backups.count} bản</div><div class=\"stat-note\">${h.backups.latest ? esc(formatDateTime(h.backups.latest.created_at)) : 'Chưa tạo backup'}</div></div>\n          </div>\n          <div class=\"card\" style=\"background:var(--surface-alt)\">\n            <div class=\"font-bold mb-2\">Thống kê bản ghi trong hệ thống</div>\n            <div class=\"font-mono\">${esc(JSON.stringify(h.counts, null, 2))}</div>\n          </div>`;\n      }\n    }\n  };\n})(window);\n"
   },
   "/js/modules/analytics.js": {
     "contentType": "application/javascript; charset=utf-8",
@@ -106,12 +106,17 @@ const __moduleFactories = {
   "./config": function (module, exports, require) {
 'use strict';
 
+const os = require('os');
 const path = require('path');
 
 const ROOT_DIR = __dirname;
 
 function loadConfig(overrides = {}) {
-  const dataDir = overrides.dataDir || process.env.ITC_DATA_DIR || path.join(ROOT_DIR, 'data');
+  const databaseUrl = overrides.databaseUrl !== undefined ? overrides.databaseUrl : (process.env.DATABASE_URL || '');
+  const defaultLocalDataDir = databaseUrl
+    ? path.join(os.tmpdir(), 'itc-tuyensinh-runtime')
+    : path.join(ROOT_DIR, 'data');
+  const dataDir = overrides.dataDir || process.env.ITC_DATA_DIR || defaultLocalDataDir;
   const backupDir = overrides.backupDir || process.env.ITC_BACKUP_DIR || path.join(dataDir, 'backups');
   const dbPath = overrides.dbPath || process.env.ITC_DB_PATH || path.join(dataDir, 'itc_tuyensinh.sqlite');
   const port = Number(overrides.port !== undefined ? overrides.port : (process.env.PORT || 3000));
@@ -125,10 +130,11 @@ function loadConfig(overrides = {}) {
 
   return {
     appName: 'ITC Admissions Server',
-    appVersion: '2.0.0',
+    appVersion: '2.1.0',
     schemaVersion: 2,
     rootDir: ROOT_DIR,
     publicDir: path.join(ROOT_DIR, 'public'),
+    databaseUrl,
     dataDir,
     backupDir,
     dbPath,
@@ -154,6 +160,166 @@ function loadConfig(overrides = {}) {
 }
 
 module.exports = { loadConfig };
+
+  },
+
+  // =========================================================================
+  // MODULE: ./pg-store
+  // =========================================================================
+  "./pg-store": function (module, exports, require) {
+'use strict';
+
+const crypto = require('crypto');
+const zlib = require('zlib');
+
+function shouldUseSsl(connectionString) {
+  if (!connectionString) return false;
+  const low = String(connectionString).toLowerCase();
+  if (low.includes('sslmode=disable')) return false;
+  if (low.includes('localhost') || low.includes('127.0.0.1')) return false;
+  return { rejectUnauthorized: false };
+}
+
+/**
+ * Durable PostgreSQL Persistence Layer for Cloud Free Tiers (Render + Neon/Supabase).
+ * Stores:
+ *  - itc_db_state : gzipped atomic SQLite database image with SHA-256 & monotonic revision
+ *  - itc_backups  : versioned JSON backups surviving container/ephemeral-disk resets
+ */
+class PostgresStore {
+  constructor(config, customPool = null) {
+    this.config = config;
+    this.customPool = customPool;
+    this.pool = null;
+    this.connected = false;
+    this.rev = 0;
+    this.lastSyncedAt = null;
+    this.lastGzipBytes = 0;
+  }
+
+  async init() {
+    if (this.customPool) {
+      this.pool = this.customPool;
+    } else {
+      const { Pool } = require('pg');
+      this.pool = new Pool({
+        connectionString: this.config.databaseUrl,
+        ssl: shouldUseSsl(this.config.databaseUrl),
+        max: 3,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 15000
+      });
+    }
+
+    await this.pool.query('SELECT 1');
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS itc_db_state (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        rev BIGINT NOT NULL DEFAULT 0,
+        schema_version INTEGER NOT NULL,
+        sha256 TEXT NOT NULL,
+        db_gzip BYTEA NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    await this.pool.query(`
+      CREATE TABLE IF NOT EXISTS itc_backups (
+        filename TEXT PRIMARY KEY,
+        schema_version INTEGER NOT NULL,
+        size_bytes INTEGER NOT NULL,
+        backup_type TEXT NOT NULL,
+        payload_json TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `);
+    this.connected = true;
+    return this;
+  }
+
+  async loadState() {
+    const res = await this.pool.query(
+      'SELECT rev, schema_version, sha256, db_gzip, updated_at FROM itc_db_state WHERE id = 1'
+    );
+    if (!res.rows || res.rows.length === 0) return null;
+    const row = res.rows[0];
+    const gzBuf = Buffer.isBuffer(row.db_gzip) ? row.db_gzip : Buffer.from(row.db_gzip);
+    const computed = crypto.createHash('sha256').update(gzBuf).digest('hex');
+    if (row.sha256 && computed !== row.sha256) {
+      throw new Error('Dữ liệu SQLite trong PostgreSQL bị sai lệch checksum SHA-256.');
+    }
+    const dbBytes = zlib.gunzipSync(gzBuf);
+    this.rev = Number(row.rev || 0);
+    this.lastSyncedAt = row.updated_at ? new Date(row.updated_at).toISOString() : new Date().toISOString();
+    this.lastGzipBytes = gzBuf.length;
+    return {
+      rev: this.rev,
+      schemaVersion: Number(row.schema_version || this.config.schemaVersion),
+      dbBytes,
+      gzipBytes: gzBuf.length,
+      updatedAt: this.lastSyncedAt
+    };
+  }
+
+  async saveState(dbBytes, schemaVersion) {
+    const gzBuf = zlib.gzipSync(dbBytes, { level: 6 });
+    const sha256 = crypto.createHash('sha256').update(gzBuf).digest('hex');
+    const res = await this.pool.query(
+      `INSERT INTO itc_db_state (id, rev, schema_version, sha256, db_gzip, updated_at)
+       VALUES (1, 1, $1, $2, $3, NOW())
+       ON CONFLICT (id) DO UPDATE SET
+         rev = itc_db_state.rev + 1,
+         schema_version = EXCLUDED.schema_version,
+         sha256 = EXCLUDED.sha256,
+         db_gzip = EXCLUDED.db_gzip,
+         updated_at = NOW()
+       RETURNING rev, updated_at`,
+      [schemaVersion, sha256, gzBuf]
+    );
+    const row = res.rows && res.rows[0] ? res.rows[0] : {};
+    this.rev = Number(row.rev || (this.rev + 1));
+    this.lastSyncedAt = row.updated_at ? new Date(row.updated_at).toISOString() : new Date().toISOString();
+    this.lastGzipBytes = gzBuf.length;
+    return { rev: this.rev, updatedAt: this.lastSyncedAt, gzipBytes: gzBuf.length };
+  }
+
+  async saveBackup({ filename, schemaVersion, sizeBytes, backupType, payloadJson }) {
+    await this.pool.query(
+      `INSERT INTO itc_backups (filename, schema_version, size_bytes, backup_type, payload_json, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())
+       ON CONFLICT (filename) DO UPDATE SET
+         payload_json = EXCLUDED.payload_json,
+         size_bytes = EXCLUDED.size_bytes`,
+      [filename, schemaVersion, sizeBytes, backupType, payloadJson]
+    );
+    const maxKeep = Math.max(5, this.config.retentionBackups || 30);
+    await this.pool.query(
+      `DELETE FROM itc_backups
+       WHERE filename NOT IN (
+         SELECT filename FROM itc_backups ORDER BY created_at DESC LIMIT $1
+       )`,
+      [maxKeep]
+    );
+  }
+
+  async loadBackup(filename) {
+    const res = await this.pool.query(
+      'SELECT payload_json FROM itc_backups WHERE filename = $1',
+      [filename]
+    );
+    if (!res.rows || res.rows.length === 0) return null;
+    return res.rows[0].payload_json;
+  }
+
+  async close() {
+    this.connected = false;
+    if (this.pool && typeof this.pool.end === 'function') {
+      try { await this.pool.end(); } catch (_) {}
+    }
+    this.pool = null;
+  }
+}
+
+module.exports = { PostgresStore, shouldUseSsl };
 
   },
 
@@ -845,8 +1011,23 @@ class DatabaseManager {
   constructor(config) {
     this.config = config;
     this.db = null;
+    this.pgStore = null;
+    this.dirty = false;
+    this._lastCommittedBytes = null;
+    this._writeQueue = Promise.resolve();
     this.simulateWriteError = false; // Hook for durability acceptance testing only
+    this.simulateCloudError = false; // Hook for PostgreSQL commit failure testing only
     this.writeErrorCount = 0;
+  }
+
+  isCloudEnabled() {
+    return Boolean(this.pgStore);
+  }
+
+  _cleanupSidecarFiles() {
+    for (const suffix of ['-wal', '-shm']) {
+      try { fs.unlinkSync(this.config.dbPath + suffix); } catch (_) {}
+    }
   }
 
   init() {
@@ -865,10 +1046,84 @@ class DatabaseManager {
     return this;
   }
 
+  async initCloud(pgStore) {
+    fs.mkdirSync(this.config.dataDir, { recursive: true });
+    fs.mkdirSync(this.config.backupDir, { recursive: true });
+    this.pgStore = pgStore;
+    await this.pgStore.init();
+
+    const cloudState = await this.pgStore.loadState();
+    this.close();
+    this._cleanupSidecarFiles();
+
+    if (cloudState && cloudState.dbBytes && cloudState.dbBytes.length > 0) {
+      fs.writeFileSync(this.config.dbPath, cloudState.dbBytes);
+      this._lastCommittedBytes = Buffer.from(cloudState.dbBytes);
+      this.dirty = false;
+      this.init();
+      if (this.dirty) {
+        await this.flushToCloud(true);
+      }
+    } else {
+      try { fs.unlinkSync(this.config.dbPath); } catch (_) {}
+      this.init();
+      await this.flushToCloud(true);
+    }
+    return this;
+  }
+
+  withWriteLock(asyncFn) {
+    const run = this._writeQueue.then(() => asyncFn());
+    this._writeQueue = run.catch(() => {});
+    return run;
+  }
+
+  async flushToCloud(force = false) {
+    if (!this.pgStore) return null;
+    if (!this.dirty && !force) return null;
+
+    try {
+      if (this.simulateCloudError) {
+        const err = new Error('Simulated PostgreSQL cloud commit failure');
+        err.code = 'STORAGE_COMMIT_FAILED';
+        err.statusCode = 500;
+        throw err;
+      }
+      this.db.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+      const bytes = fs.readFileSync(this.config.dbPath);
+      const saved = await this.pgStore.saveState(bytes, this.config.schemaVersion);
+      this._lastCommittedBytes = bytes;
+      this.dirty = false;
+      return saved;
+    } catch (err) {
+      this.writeErrorCount++;
+      // Roll back local SQLite to last cloud-confirmed commit so local never diverges from PostgreSQL!
+      if (this._lastCommittedBytes) {
+        this.close();
+        this._cleanupSidecarFiles();
+        fs.writeFileSync(this.config.dbPath, this._lastCommittedBytes);
+        this.init();
+      }
+      this.dirty = false;
+      const wrapped = new Error('Lỗi đồng bộ lưu bền lên PostgreSQL: ' + (err.message || 'Unknown error'));
+      wrapped.code = 'STORAGE_COMMIT_FAILED';
+      wrapped.statusCode = 500;
+      throw wrapped;
+    }
+  }
+
   close() {
     if (this.db) {
       try { this.db.close(); } catch (_) {}
       this.db = null;
+    }
+  }
+
+  async closeAsync() {
+    this.close();
+    if (this.pgStore) {
+      await this.pgStore.close();
+      this.pgStore = null;
     }
   }
 
@@ -888,6 +1143,7 @@ class DatabaseManager {
     try {
       const result = fn(this.db);
       this.db.exec('COMMIT');
+      this.dirty = true;
       return result;
     } catch (err) {
       try { this.db.exec('ROLLBACK'); } catch (_) {}
@@ -916,6 +1172,7 @@ class DatabaseManager {
       JSON.stringify(detail || {}),
       ip || ''
     );
+    this.dirty = true;
   }
 
   getSetting(key, fallback = null) {
@@ -934,13 +1191,35 @@ class DatabaseManager {
   }
 
   _bootstrapInitialReferenceData() {
+    const defaultAdminPw = String(process.env.ITC_DEFAULT_ADMIN_PASSWORD || 'ItcAdmin@2027!').trim();
+    const defaultStaffPw = String(process.env.ITC_DEFAULT_STAFF_PASSWORD || 'ItcStaff@2027!').trim();
+    const defaultAdminPin = String(process.env.ITC_DEFAULT_ADMIN_PIN || '202700').trim();
+
     const userCount = this.db.prepare('SELECT COUNT(*) AS cnt FROM users').get().cnt;
-    if (userCount > 0) return;
+    if (userCount > 0) {
+      // Optional explicit recovery flag: sync Super Admin & Staff passwords from Render Env Vars
+      if (String(process.env.ITC_SYNC_DEFAULT_PASSWORDS || '').trim().toLowerCase() === 'true') {
+        const tsSync = nowIso();
+        this.transaction((db) => {
+          const adminHash = hashPassword(defaultAdminPw);
+          const staffHash = hashPassword(defaultStaffPw);
+          const pinHash = hashPassword(defaultAdminPin);
+          db.prepare("UPDATE users SET password_hash = ?, mfa_pin_hash = ?, active = 1, updated_at = ? WHERE id IN ('usr_admin_tai', 'usr_admin_le')")
+            .run(adminHash, pinHash, tsSync);
+          db.prepare("UPDATE users SET password_hash = ?, updated_at = ? WHERE id IN ('usr_staff_1', 'usr_staff_2', 'usr_staff_3', 'usr_staff_4')")
+            .run(staffHash, tsSync);
+          this.appendAudit(db, {
+            actor: null,
+            action: 'ENV_PASSWORDS_SYNCED',
+            entityType: 'auth',
+            summary: 'Đồng bộ lại mật khẩu mặc định từ biến môi trường (ITC_SYNC_DEFAULT_PASSWORDS=true).'
+          });
+        });
+      }
+      return;
+    }
 
     const ts = nowIso();
-    const defaultAdminPw = process.env.ITC_DEFAULT_ADMIN_PASSWORD || 'ItcAdmin@2027!';
-    const defaultStaffPw = process.env.ITC_DEFAULT_STAFF_PASSWORD || 'ItcStaff@2027!';
-    const defaultAdminPin = process.env.ITC_DEFAULT_ADMIN_PIN || '202700';
 
     this.transaction((db) => {
       // 1. Default Intake Years (2027, 2028, 2029)
@@ -1704,12 +1983,12 @@ class AuthService {
     return { sql: `${staffColAlias} = ?`, params: [user.staff_id] };
   }
 
-  makeSessionCookie(token, maxAgeSeconds) {
-    return `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAgeSeconds}`;
+  makeSessionCookie(token, maxAgeSeconds, isHttps = false) {
+    return `${SESSION_COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${maxAgeSeconds}${isHttps ? '; Secure' : ''}`;
   }
 
-  clearSessionCookie() {
-    return `${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0`;
+  clearSessionCookie(isHttps = false) {
+    return `${SESSION_COOKIE_NAME}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${isHttps ? '; Secure' : ''}`;
   }
 }
 
@@ -3946,7 +4225,8 @@ function createVersionedBackup(dbm, { actor = null, backupType = 'manual', ip = 
     sizeBytes,
     recordCounts: payload.recordCounts,
     backupType,
-    createdAt: ts
+    createdAt: ts,
+    rawJson
   };
 }
 
@@ -4094,6 +4374,7 @@ function restoreFromBackupPayload(dbm, payload, { actor, ip = '', dryRun = false
   return {
     restored: true,
     checkpoint: checkpoint.filename,
+    checkpointObj: checkpoint,
     schemaVersion: payload.schemaVersion,
     restoredCounts: check.impactSummary
   };
@@ -4104,6 +4385,7 @@ function getSystemHealth(dbm, realtime, startTimeMs) {
   let dbSizeBytes = 0;
   let counts = {};
   let latestBackup = null;
+  let backupRecordCount = 0;
   try {
     dbm.db.prepare('SELECT 1 AS ok').get();
     dbOk = true;
@@ -4120,18 +4402,28 @@ function getSystemHealth(dbm, realtime, startTimeMs) {
       auditEvents: dbm.db.prepare('SELECT COUNT(*) AS c FROM audit_events').get().c
     };
     latestBackup = dbm.db.prepare('SELECT * FROM backup_records ORDER BY created_at DESC LIMIT 1').get() || null;
+    backupRecordCount = dbm.db.prepare('SELECT COUNT(*) AS c FROM backup_records').get().c;
   } catch (_) {}
 
-  let backupFileCount = 0;
-  try {
-    backupFileCount = fs.readdirSync(dbm.config.backupDir).filter(f => f.endsWith('.json')).length;
-  } catch (_) {}
+  let backupFileCount = backupRecordCount;
+  if (!dbm.isCloudEnabled()) {
+    try {
+      backupFileCount = fs.readdirSync(dbm.config.backupDir).filter(f => f.endsWith('.json')).length;
+    } catch (_) {}
+  }
 
   return {
     status: dbOk ? 'healthy' : 'degraded',
     appVersion: dbm.config.appVersion,
     schemaVersion: dbm.config.schemaVersion,
     uptimeSeconds: Math.round((Date.now() - startTimeMs) / 1000),
+    storage: {
+      mode: dbm.isCloudEnabled() ? 'postgresql+sqlite' : 'sqlite-local',
+      pgConnected: Boolean(dbm.pgStore && dbm.pgStore.connected),
+      pgRev: dbm.pgStore ? dbm.pgStore.rev : null,
+      lastSyncedAt: dbm.pgStore ? dbm.pgStore.lastSyncedAt : null,
+      lastGzipBytes: dbm.pgStore ? dbm.pgStore.lastGzipBytes : null
+    },
     db: {
       ok: dbOk,
       path: path.basename(dbm.config.dbPath),
@@ -4433,7 +4725,7 @@ const {
   createVersionedBackup, restoreFromBackupPayload, getSystemHealth
 } = require('./backup');
 
-function sendJson(res, statusCode, data, extraHeaders = {}) {
+function sendJsonRaw(res, statusCode, data, extraHeaders = {}) {
   const body = JSON.stringify(data);
   res.writeHead(statusCode, {
     'Content-Type': 'application/json; charset=utf-8',
@@ -4443,7 +4735,7 @@ function sendJson(res, statusCode, data, extraHeaders = {}) {
   res.end(body);
 }
 
-function sendBuffer(res, statusCode, buf, contentType, filename = null) {
+function sendBufferRaw(res, statusCode, buf, contentType, filename = null) {
   const headers = {
     'Content-Type': contentType,
     'Content-Length': buf.length,
@@ -4559,20 +4851,39 @@ function checkOptimisticMerge(currentObj, incomingPatch, expectedVersion, fieldV
   return { ok: true, merged: true, conflicts: [] };
 }
 
-function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
+function createApiHandler({ dbm, auth, realtime: rawRealtime, config, startTimeMs }) {
   async function handleApi(req, res, urlObj) {
     const method = req.method.toUpperCase();
     const pathname = urlObj.pathname;
     const ip = getClientIp(req);
+    const isHttps = req.headers['x-forwarded-proto'] === 'https';
 
-    try {
+    const executeRequest = async () => {
+      let pendingResp = null;
+      const pendingWs = [];
+      const sendJson = (_res, statusCode, data, extraHeaders = {}) => {
+        pendingResp = { type: 'json', statusCode, data, extraHeaders };
+      };
+      const sendBuffer = (_res, statusCode, buf, contentType, filename = null) => {
+        pendingResp = { type: 'buf', statusCode, buf, contentType, filename };
+      };
+      const realtime = dbm.isCloudEnabled()
+        ? {
+            getStats: () => rawRealtime.getStats(),
+            disconnectUser: (uid) => rawRealtime.disconnectUser(uid),
+            broadcastEvent: (ev) => pendingWs.push({ kind: 'event', ev }),
+            broadcastSystemReload: (reason) => pendingWs.push({ kind: 'reload', reason })
+          }
+        : rawRealtime;
+
+      const dispatch = async () => {
       // --- PUBLIC ENDPOINTS (strictly minimal!) ---
       if (method === 'GET' && pathname === '/api/health') {
         const session = auth.authenticateRequest(req);
         if (session && auth.isAdminOrManager(session.user)) {
           return sendJson(res, 200, getSystemHealth(dbm, realtime, startTimeMs));
         }
-        return sendJson(res, 200, { status: 'healthy', appVersion: config.appVersion, timestamp: nowIso() });
+        return sendJson(res, 200, { status: 'healthy', appVersion: config.appVersion, storageMode: dbm.isCloudEnabled() ? 'postgresql+sqlite' : 'sqlite-local', timestamp: nowIso() });
       }
 
       if (method === 'POST' && pathname === '/api/auth/login') {
@@ -4582,7 +4893,7 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
         return sendJson(
           res, 200,
           { ok: true, user: result.user, token: result.token, expiresAt: result.expiresAt },
-          { 'Set-Cookie': auth.makeSessionCookie(result.token, maxAge) }
+          { 'Set-Cookie': auth.makeSessionCookie(result.token, maxAge, isHttps) }
         );
       }
 
@@ -4598,7 +4909,7 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
           ? req.headers['authorization'].slice(7).trim()
           : (require('./auth').extractSessionToken(req));
         auth.logout(token, user, ip);
-        return sendJson(res, 200, { ok: true }, { 'Set-Cookie': auth.clearSessionCookie() });
+        return sendJson(res, 200, { ok: true }, { 'Set-Cookie': auth.clearSessionCookie(isHttps) });
       }
 
       if (method === 'GET' && pathname === '/api/auth/me') {
@@ -5808,8 +6119,10 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
         }
 
         if (method === 'POST' && sub === 'reject') {
-          dbm.db.prepare('UPDATE zalo_staging SET status = ?, reviewed_by = ?, updated_at = ? WHERE id = ?')
-            .run('rejected', user.id, nowIso(), zId);
+          dbm.transaction((db) => {
+            db.prepare('UPDATE zalo_staging SET status = ?, reviewed_by = ?, updated_at = ? WHERE id = ?')
+              .run('rejected', user.id, nowIso(), zId);
+          });
           return sendJson(res, 200, { ok: true });
         }
       }
@@ -6267,29 +6580,6 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
           subject,
           body: content,
           ip
-        });
-        return sendJson(res, 201, { ok: true, job });
-      }
-
-      // --- M9: ADMIN, RBAC, STAFF, INTAKE YEARS, AUDIT, BACKUP/RESTORE ---
-      if (method === 'GET' && pathname === '/api/admin/users') {
-        auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
-        const rows = dbm.db.prepare(`
-          SELECT u.*, s.id AS staff_id, s.zalo_slot AS staff_zalo_slot, s.team AS staff_team
-          FROM users u LEFT JOIN staff s ON s.user_id = u.id
-          ORDER BY u.created_at ASC
-        `).all();
-        return sendJson(res, 200, { items: rows.map(r => auth.sanitizeUser(r)) });
-      }
-
-      if (method === 'POST' && pathname === '/api/admin/users') {
-        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
-        const body = await readJsonBody(req, 32 * 1024);
-        const email = cleanString(body.email || '', 160).toLowerCase();
-        const fullName = cleanString(body.full_name || '', 160);
-        const password = cleanString(body.password || 'ItcStaff@2027!', 120);
-        const role = cleanString(body.role || ROLES.CONSULTANT, 30);
-        const scope = cleanString(body.scope || (role === ROLES.CONSULTANT ? SCOPES.OWN : SCOPES.ALL), 20);
         if (!email || !fullName) throw validationError('Email và Họ tên không được trống.');
         if (!VALID_ROLES.has(role)) throw validationError('Vai trò không hợp lệ.');
         if (!VALID_SCOPES.has(scope)) throw validationError('Phạm vi dữ liệu không hợp lệ.');
@@ -6537,7 +6827,17 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
       if (method === 'POST' && pathname === '/api/backup') {
         auth.requireRole(user, [ROLES.SUPER_ADMIN, ROLES.MANAGER]);
         const bkp = createVersionedBackup(dbm, { actor: user, backupType: 'manual', ip });
-        return sendJson(res, 201, { ok: true, backup: bkp });
+        if (dbm.pgStore) {
+          await dbm.pgStore.saveBackup({
+            filename: bkp.filename,
+            schemaVersion: bkp.schemaVersion,
+            sizeBytes: bkp.sizeBytes,
+            backupType: bkp.backupType,
+            payloadJson: bkp.rawJson
+          });
+        }
+        const { rawJson, ...safeBkp } = bkp;
+        return sendJson(res, 201, { ok: true, backup: safeBkp });
       }
 
       const bkpDlMatch = pathname.match(/^\/api\/backup\/([a-zA-Z0-9._-]+)\/download$/);
@@ -6545,8 +6845,14 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
         auth.requireRole(user, [ROLES.SUPER_ADMIN]);
         const filename = path.basename(bkpDlMatch[1]);
         const fullPath = path.join(config.backupDir, filename);
-        if (!fs.existsSync(fullPath)) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tệp backup.' });
-        const buf = fs.readFileSync(fullPath);
+        let buf = null;
+        if (fs.existsSync(fullPath)) {
+          buf = fs.readFileSync(fullPath);
+        } else if (dbm.pgStore) {
+          const cloudJson = await dbm.pgStore.loadBackup(filename);
+          if (cloudJson) buf = Buffer.from(cloudJson, 'utf8');
+        }
+        if (!buf) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tệp backup.' });
         dbm.appendAudit(null, { actor: user, action: 'BACKUP_DOWNLOADED', entityType: 'backup', summary: `Tải bản sao lưu ngoài máy chủ: ${filename}`, ip });
         return sendBuffer(res, 200, buf, 'application/json; charset=utf-8', filename);
       }
@@ -6575,11 +6881,72 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
         if (!payload && body.filename) {
           const safeName = path.basename(String(body.filename));
           const fullPath = path.join(config.backupDir, safeName);
-          if (!fs.existsSync(fullPath)) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tệp sao lưu trên máy chủ.' });
-          payload = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+          if (fs.existsSync(fullPath)) {
+            payload = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+          } else if (dbm.pgStore) {
+            const cloudJson = await dbm.pgStore.loadBackup(safeName);
+            if (cloudJson) payload = JSON.parse(cloudJson);
+          }
+          if (!payload) return sendJson(res, 404, { error: 'NOT_FOUND', message: 'Không tìm thấy tệp sao lưu trên máy chủ.' });
         }
         const result = restoreFromBackupPayload(dbm, payload, { actor: user, ip, dryRun, realtime });
-        return sendJson(res, 200, { ok: true, ...result });
+        if (!dryRun && dbm.pgStore && result.checkpointObj) {
+          await dbm.pgStore.saveBackup({
+            filename: result.checkpointObj.filename,
+            schemaVersion: result.checkpointObj.schemaVersion,
+            sizeBytes: result.checkpointObj.sizeBytes,
+            backupType: 'pre_restore',
+            payloadJson: result.checkpointObj.rawJson
+          });
+        }
+        const { checkpointObj, ...safeRes } = result;
+        return sendJson(res, 200, { ok: true, ...safeRes });
+      }
+
+      // Clean Production Reset (Super Admin only + elevated confirmation + automatic pre_reset checkpoint)
+      if (method === 'POST' && pathname === '/api/admin/reset-data') {
+        auth.requireRole(user, [ROLES.SUPER_ADMIN]);
+        const body = await readJsonBody(req, 16 * 1024);
+        const confirmed = auth.verifyElevatedAdminConfirmation(user.id, {
+          confirmPassword: body.confirmPassword,
+          confirmPin: body.confirmPin
+        });
+        if (!confirmed) {
+          return sendJson(res, 403, {
+            error: 'ELEVATED_AUTH_REQUIRED',
+            message: 'Xóa sạch dữ liệu thử nghiệm yêu cầu nhập mật khẩu Super Admin hoặc mã PIN quản trị.'
+          });
+        }
+        const checkpoint = createVersionedBackup(dbm, { actor: user, backupType: 'pre_reset', ip });
+        if (dbm.pgStore) {
+          await dbm.pgStore.saveBackup({
+            filename: checkpoint.filename,
+            schemaVersion: checkpoint.schemaVersion,
+            sizeBytes: checkpoint.sizeBytes,
+            backupType: 'pre_reset',
+            payloadJson: checkpoint.rawJson
+          });
+        }
+        const clearTables = [
+          'import_rows', 'import_batches', 'notification_jobs', 'report_snapshots',
+          'task_comments', 'tasks', 'zalo_staging', 'regional_records',
+          'assignment_history', 'document_checklists', 'follow_ups', 'interactions',
+          'milestone_events', 'registrations', 'contact_points', 'persons', 'idempotency_keys'
+        ];
+        dbm.transaction((db) => {
+          for (const tbl of clearTables) {
+            db.exec(`DELETE FROM ${tbl}`);
+          }
+          dbm.appendAudit(db, {
+            actor: user,
+            action: 'PRODUCTION_CLEAN_RESET',
+            entityType: 'system',
+            summary: `Đã dọn sạch toàn bộ hồ sơ/công việc thử nghiệm về nguyên trạng (giữ tài khoản, nhân sự, niên khóa & KPI 2027). Checkpoint: ${checkpoint.filename}`,
+            ip
+          });
+        });
+        realtime.broadcastSystemReload(`Dữ liệu thử nghiệm đã được dọn sạch về nguyên trạng bởi ${user.full_name}.`);
+        return sendJson(res, 200, { ok: true, checkpoint: checkpoint.filename });
       }
 
       // --- M10 (P2): SOURCE / SCHOOL / PROVINCE / MAJOR CONVERSION ANALYTICS ---
@@ -6629,106 +6996,43 @@ function createApiHandler({ dbm, auth, realtime, config, startTimeMs }) {
       }
 
       return sendJson(res, 404, { error: 'NOT_FOUND', message: `Không tìm thấy API ${method} ${pathname}` });
-    } catch (err) {
-      const status = err.statusCode || (err.code === 'STORAGE_COMMIT_FAILED' ? 500 : 500);
-      return sendJson(res, status, {
-        error: err.code || 'INTERNAL_ERROR',
-        message: err.message || 'Lỗi xử lý phía máy chủ.',
-        details: err.details || undefined
-      });
+      };
+
+      try {
+        await dispatch();
+        if (dbm.isCloudEnabled() && dbm.dirty) {
+          await dbm.flushToCloud();
+        }
+        for (const item of pendingWs) {
+          if (item.kind === 'event') rawRealtime.broadcastEvent(item.ev);
+          else if (item.kind === 'reload') rawRealtime.broadcastSystemReload(item.reason);
+        }
+        if (pendingResp) {
+          if (pendingResp.type === 'json') {
+            return sendJsonRaw(res, pendingResp.statusCode, pendingResp.data, pendingResp.extraHeaders);
+          }
+          return sendBufferRaw(res, pendingResp.statusCode, pendingResp.buf, pendingResp.contentType, pendingResp.filename);
+        }
+      } catch (err) {
+        const status = err.statusCode || (err.code === 'STORAGE_COMMIT_FAILED' ? 500 : 500);
+        return sendJsonRaw(res, status, {
+          error: err.code || 'INTERNAL_ERROR',
+          message: err.message || 'Lỗi xử lý phía máy chủ.',
+          details: err.details || undefined
+        });
+      }
+    };
+
+    if (dbm.isCloudEnabled() && ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
+      return dbm.withWriteLock(executeRequest);
     }
+    return executeRequest();
   }
 
   return handleApi;
 }
 
 module.exports = { createApiHandler };
-
-  },
-
-  // =========================================================================
-  // MODULE: ./seed-demo
-  // =========================================================================
-  "./seed-demo": function (module, exports, require) {
-'use strict';
-
-/**
- * Explicit opt-in demo data seeder (`npm run seed-demo`).
- * NEVER executed automatically on production boot (Section 9 of spec: separate demo from real data!).
- */
-const { loadConfig } = require('./config');
-const { DatabaseManager, newId, nowIso } = require('./db');
-const { CONTACT_STATUS, STAGE_CODE, MILESTONE_TYPE, DEFAULT_DOCUMENT_CHECKLIST } = require('./constants');
-
-function runDemoSeed() {
-  const config = loadConfig();
-  const dbm = new DatabaseManager(config).init();
-  const existing = dbm.db.prepare('SELECT COUNT(*) AS cnt FROM registrations').get().cnt;
-  if (existing > 0) {
-    console.log(`Cơ sở dữ liệu đã có ${existing} hồ sơ. Bỏ qua nạp dữ liệu mẫu để tránh trộn dữ liệu thật.`);
-    dbm.close();
-    return;
-  }
-
-  const ts = nowIso();
-  const demoLeads = [
-    { name: 'Nguyễn Minh Quân', phone: '0901112233', parent: '0909998877', major: 'Công nghệ thông tin', school: 'THPT Lê Hồng Phong', province: 'TP.HCM', source: 'Website ITC', staff: 'stf_1', contact: CONTACT_STATUS.CONTACTED_INTERESTED, stage: STAGE_CODE.ENROLLED, regAt: '2026-11-05T02:00:00.000Z', firstAt: '2026-11-05T02:06:00.000Z', subAt: '2026-11-12T03:00:00.000Z', enrAt: '2026-11-20T03:00:00.000Z' },
-    { name: 'Trần Ngọc Hân', phone: '0912223344', parent: '', major: 'Thiết kế đồ họa', school: 'THPT Nguyễn Đình Chiểu', province: 'Tiền Giang', source: 'Facebook Ads', staff: 'stf_2', contact: CONTACT_STATUS.CALLBACK_SCHEDULED, stage: STAGE_CODE.SUBMITTED, regAt: '2026-11-10T02:00:00.000Z', firstAt: '2026-11-10T02:10:00.000Z', subAt: '2026-11-18T03:00:00.000Z', enrAt: null },
-    { name: 'Lê Hoàng Phúc', phone: '0933334455', parent: '', major: 'Kế toán', school: 'THPT Bến Tre', province: 'Bến Tre', source: 'Group Zalo', staff: 'stf_3', contact: CONTACT_STATUS.UNCONTACTED, stage: STAGE_CODE.LEAD, regAt: '2026-11-25T01:30:00.000Z', firstAt: null, subAt: null, enrAt: null },
-    { name: 'Phạm Thùy Dương', phone: '0944445566', parent: '0988776655', major: 'Digital Marketing', school: 'THPT Buôn Ma Thuột', province: 'Đắk Lắk', source: 'Khảo sát tuyến tỉnh', staff: 'stf_4', contact: CONTACT_STATUS.NO_ANSWER, stage: STAGE_CODE.LEAD, regAt: '2026-11-24T03:00:00.000Z', firstAt: '2026-11-24T03:35:00.000Z', subAt: null, enrAt: null }
-  ];
-
-  dbm.transaction((db) => {
-    for (const d of demoLeads) {
-      const pId = newId('per');
-      const rId = newId('reg');
-      db.prepare('INSERT INTO persons (id, full_name, student_phone, parent_phone, province, school, verified, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?)')
-        .run(pId, d.name, d.phone, d.parent, d.province, d.school, ts, ts);
-      db.prepare(`
-        INSERT INTO registrations (
-          id, person_id, intake_year, major, source, school, province, assigned_staff_id,
-          contact_status, stage_code, source_received_at, crm_received_at, first_contact_at,
-          sources_history_json, created_by, created_at, updated_at
-        ) VALUES (?, ?, '2027', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'usr_admin_tai', ?, ?)
-      `).run(rId, pId, d.major, d.source, d.school, d.province, d.staff, d.contact, d.stage, d.regAt, d.regAt, d.firstAt, JSON.stringify([d.source]), ts, ts);
-
-      db.prepare('INSERT INTO milestone_events (id, registration_id, intake_year, milestone_type, occurred_at, attributed_staff_id, recorded_by_user_id, evidence_note, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)')
-        .run(newId('mil'), rId, '2027', MILESTONE_TYPE.REGISTERED, d.regAt, d.staff, 'usr_admin_tai', 'Demo seed', ts);
-      if (d.subAt) {
-        db.prepare('INSERT INTO milestone_events (id, registration_id, intake_year, milestone_type, occurred_at, attributed_staff_id, recorded_by_user_id, evidence_note, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)')
-          .run(newId('mil'), rId, '2027', MILESTONE_TYPE.SUBMITTED, d.subAt, d.staff, 'usr_admin_tai', 'Demo seed', ts);
-      }
-      if (d.enrAt) {
-        db.prepare('INSERT INTO milestone_events (id, registration_id, intake_year, milestone_type, occurred_at, attributed_staff_id, recorded_by_user_id, evidence_note, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?)')
-          .run(newId('mil'), rId, '2027', MILESTONE_TYPE.ENROLLED, d.enrAt, d.staff, 'usr_admin_tai', 'Demo seed', ts);
-      }
-      for (const doc of DEFAULT_DOCUMENT_CHECKLIST) {
-        db.prepare('INSERT OR IGNORE INTO document_checklists (id, registration_id, doc_code, doc_name, status, updated_by, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)')
-          .run(newId('doc'), rId, doc.code, doc.name, d.stage === STAGE_CODE.ENROLLED ? 'verified' : 'missing', 'usr_admin_tai', ts);
-      }
-    }
-
-    // Demo tasks
-    db.prepare(`
-      INSERT INTO tasks (id, intake_year, task_type, title, description, owner_staff_id, deadline, priority, status, checklist_json, created_by, created_at, updated_at)
-      VALUES (?, '2027', 'bgh', 'Triển khai kế hoạch tư vấn tuyển sinh năm 2027 tại các trường THPT trọng điểm', 'Phối hợp Sở GD và 3 tuyến tỉnh', 'stf_admin_tai', '2026-11-30', 'high', 'in_progress', ?, 'usr_admin_tai', ?, ?)
-    `).run(newId('tsk'), JSON.stringify([{ text: 'Chốt danh sách 30 trường trọng điểm', done: true }, { text: 'Phân bổ nhân sự đi tuyến', done: false }]), ts, ts);
-
-    dbm.appendAudit(db, {
-      actor: null,
-      action: 'DEMO_SEED_EXECUTED',
-      entityType: 'system',
-      summary: 'Nạp dữ liệu mẫu kiểm thử theo lệnh thủ công npm run seed-demo'
-    });
-  });
-
-  console.log('Đã nạp 4 hồ sơ mẫu + 1 công việc BGH mẫu cho niên khóa 2027.');
-  dbm.close();
-}
-
-// Invoked via CLI flag: node server.js --seed-demo
-
-module.exports = { runDemoSeed };
 
   }
 };
@@ -6753,11 +7057,11 @@ function __localRequire(id) {
 // ---------------------------------------------------------------------------
 const { loadConfig } = __localRequire('./config');
 const { DatabaseManager } = __localRequire('./db');
+const { PostgresStore } = __localRequire('./pg-store');
 const { AuthService } = __localRequire('./auth');
 const { RealtimeHub } = __localRequire('./realtime');
 const { createApiHandler } = __localRequire('./routes');
 const { createVersionedBackup } = __localRequire('./backup');
-const { runDemoSeed } = __localRequire('./seed-demo');
 
 function setSecurityHeaders(res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -6772,7 +7076,13 @@ function setSecurityHeaders(res) {
 function createAppServer(overrides = {}) {
   const config = loadConfig(overrides);
   const startTimeMs = Date.now();
-  const dbm = new DatabaseManager(config).init();
+  const useCloudPg = Boolean(overrides.pgPool || config.databaseUrl);
+  const dbm = new DatabaseManager(config);
+  let dbInitialized = false;
+  if (!useCloudPg) {
+    dbm.init();
+    dbInitialized = true;
+  }
   const auth = new AuthService(dbm, config);
 
   let realtime = null;
@@ -6827,9 +7137,23 @@ function createAppServer(overrides = {}) {
   // Scheduled automated versioned backup every 6 hours (runs even without open browser)
   let backupTimer = null;
   if (!overrides.disableScheduledBackup) {
-    backupTimer = setInterval(() => {
+    backupTimer = setInterval(async () => {
       try {
-        createVersionedBackup(dbm, { actor: null, backupType: 'scheduled' });
+        const doBackup = async () => {
+          const bkp = createVersionedBackup(dbm, { actor: null, backupType: 'scheduled' });
+          if (dbm.pgStore) {
+            await dbm.pgStore.saveBackup({
+              filename: bkp.filename,
+              schemaVersion: bkp.schemaVersion,
+              sizeBytes: bkp.sizeBytes,
+              backupType: 'scheduled',
+              payloadJson: bkp.rawJson
+            });
+            await dbm.flushToCloud();
+          }
+        };
+        if (dbm.isCloudEnabled()) await dbm.withWriteLock(doBackup);
+        else await doBackup();
       } catch (e) {
         console.error('[Backup Scheduler Error]', e.message);
       }
@@ -6843,7 +7167,12 @@ function createAppServer(overrides = {}) {
     auth,
     realtime,
     server,
-    start() {
+    async start() {
+      if (!dbInitialized && useCloudPg) {
+        const pgStore = new PostgresStore(config, overrides.pgPool || null);
+        await dbm.initCloud(pgStore);
+        dbInitialized = true;
+      }
       return new Promise((resolve, reject) => {
         server.once('error', reject);
         server.listen(config.port, config.host, () => {
@@ -6852,32 +7181,25 @@ function createAppServer(overrides = {}) {
         });
       });
     },
-    stop() {
-      return new Promise((resolve) => {
-        if (backupTimer) clearInterval(backupTimer);
-        realtime.close();
-        server.close(() => {
-          dbm.close();
-          resolve();
-        });
-      });
+    async stop() {
+      if (backupTimer) clearInterval(backupTimer);
+      realtime.close();
+      await new Promise((resolve) => server.close(() => resolve()));
+      await dbm.closeAsync();
     }
   };
 }
 
 if (require.main === module) {
-  if (process.argv.includes('--seed-demo')) {
-    runDemoSeed();
-    process.exit(0);
-  }
-
   const app = createAppServer();
   app.start().then(({ port }) => {
+    const storageLabel = app.dbm.isCloudEnabled()
+      ? `PostgreSQL Cloud (rev #${app.dbm.pgStore.rev}) + SQLite WAL`
+      : `SQLite Local (${app.config.dbPath})`;
     console.log('================================================================');
     console.log(` ITC Tuyển Sinh Server v${app.config.appVersion} (Single-File Bundle) đang chạy!`);
-    console.log(` Địa chỉ LAN/Local : http://localhost:${port}`);
-    console.log(` Database SQLite   : ${app.config.dbPath} (WAL + FULL sync)`);
-    console.log(` Thư mục Sao lưu   : ${app.config.backupDir}`);
+    console.log(` Địa chỉ LAN/Cloud : http://localhost:${port}`);
+    console.log(` Lưu trữ bền vững  : ${storageLabel}`);
     console.log('================================================================');
   }).catch((err) => {
     console.error('Không thể khởi động máy chủ:', err);
@@ -6892,4 +7214,4 @@ if (require.main === module) {
   process.on('SIGTERM', graceful);
 }
 
-module.exports = { createAppServer, STATIC_ASSETS };
+module.exports = { createAppServer, STATIC_ASSETS, PostgresStore };

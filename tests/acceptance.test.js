@@ -797,7 +797,146 @@ async function runAll() {
       return `Presence 2 users / 3 tabs, E2E commit+WS latency=${e2eMs}ms, CSP & restart persistence OK`;
     });
 
-    console.log(`\n=== KET QUA: ${results.filter(r => r.pass).length}/16 TINH HUONG NGHIEM THU DAT 100% ===\n`);
+    // 17. Cloud PostgreSQL Persistence (Render Free Ephemeral Disk Wipe Recovery + Commit-Before-ACK Rollback)
+    await scenario(17, 'Lưu bền PostgreSQL Cloud (Render Free xóa ổ đĩa vẫn giữ đủ dữ liệu & backup)', async () => {
+      // Faithful in-memory PostgreSQL pool mock supporting PostgresStore SQL contract
+      const pgState = { row: null, backups: new Map() };
+      const mockPgPool = {
+        async query(sql, params = []) {
+          const s = String(sql).trim();
+          if (s === 'SELECT 1' || s.startsWith('CREATE TABLE')) return { rows: [{ '?column?': 1 }] };
+          if (s.includes('FROM itc_db_state')) {
+            return { rows: pgState.row ? [{ ...pgState.row }] : [] };
+          }
+          if (s.includes('INSERT INTO itc_db_state')) {
+            const nextRev = pgState.row ? pgState.row.rev + 1 : 1;
+            pgState.row = {
+              id: 1,
+              rev: nextRev,
+              schema_version: params[0],
+              sha256: params[1],
+              db_gzip: Buffer.from(params[2]),
+              updated_at: new Date().toISOString()
+            };
+            return { rows: [{ rev: nextRev, updated_at: pgState.row.updated_at }] };
+          }
+          if (s.includes('INSERT INTO itc_backups')) {
+            pgState.backups.set(params[0], {
+              filename: params[0],
+              schema_version: params[1],
+              size_bytes: params[2],
+              backup_type: params[3],
+              payload_json: params[4],
+              created_at: new Date().toISOString()
+            });
+            return { rows: [] };
+          }
+          if (s.includes('DELETE FROM itc_backups')) {
+            const keep = Number(params[0] || 30);
+            const sorted = [...pgState.backups.values()].sort((a, b) => b.created_at.localeCompare(a.created_at));
+            for (const stale of sorted.slice(keep)) pgState.backups.delete(stale.filename);
+            return { rows: [] };
+          }
+          if (s.includes('FROM itc_backups')) {
+            const b = pgState.backups.get(params[0]);
+            return { rows: b ? [{ payload_json: b.payload_json }] : [] };
+          }
+          throw new Error('Unexpected mockPgPool SQL: ' + s);
+        },
+        async end() {}
+      };
+
+      // Container #1 on Ephemeral Dir A
+      const dirA = fs.mkdtempSync(path.join(os.tmpdir(), 'itc-render-a-'));
+      let cloudApp = createAppServer({
+        port: 0,
+        host: '127.0.0.1',
+        dataDir: dirA,
+        backupDir: path.join(dirA, 'backups'),
+        dbPath: path.join(dirA, 'runtime.sqlite'),
+        pgPool: mockPgPool,
+        disableScheduledBackup: true
+      });
+      const c1 = await cloudApp.start();
+      const url1 = `http://127.0.0.1:${c1.port}`;
+
+      const log1 = await reqJson(url1, 'POST', '/api/auth/login', { body: { email: ADMIN_EMAIL, password: ADMIN_PW } });
+      assert.strictEqual(log1.status, 200);
+      const tok = log1.data.token;
+
+      const created = await reqJson(url1, 'POST', '/api/registrations', {
+        token: tok,
+        body: { full_name: 'Thí sinh Cloud Vĩnh Viễn', student_phone: '0908111222', intake_year: '2027', assigned_staff_id: 'stf_1' }
+      });
+      assert.strictEqual(created.status, 201);
+      const regId = created.data.record.id;
+
+      // Create cloud-backed backup
+      const bkpRes = await reqJson(url1, 'POST', '/api/backup', { token: tok, body: {} });
+      assert.strictEqual(bkpRes.status, 201);
+      const bkpName = bkpRes.data.backup.filename;
+
+      // Health check reports postgresql+sqlite & revision
+      const h1 = await reqJson(url1, 'GET', '/api/health', { token: tok });
+      assert.strictEqual(h1.data.storage.mode, 'postgresql+sqlite');
+      assert.strictEqual(h1.data.storage.pgConnected, true);
+      assert.ok(h1.data.storage.pgRev >= 3);
+
+      // Simulate PostgreSQL failure -> HTTP 500 & local SQLite automatically rolled back!
+      cloudApp.dbm.simulateCloudError = true;
+      const failCloud = await reqJson(url1, 'POST', '/api/registrations', {
+        token: tok,
+        body: { full_name: 'Không được lưu khi PG lỗi', student_phone: '0908333444', intake_year: '2027' }
+      });
+      cloudApp.dbm.simulateCloudError = false;
+      assert.strictEqual(failCloud.status, 500);
+      const afterFailList = await reqJson(url1, 'GET', '/api/registrations?intakeYear=2027', { token: tok });
+      assert.strictEqual(afterFailList.data.total, 1, 'Failed PG commit must roll back local SQLite cleanly');
+
+      // STOP Container #1 AND TOTALLY WIPE EPHEMERAL DISK dirA (simulating Render Free restart/redeploy!)
+      await cloudApp.stop();
+      fs.rmSync(dirA, { recursive: true, force: true });
+
+      // BOOT Container #2 on brand new empty dirB connected to SAME PostgreSQL!
+      const dirB = fs.mkdtempSync(path.join(os.tmpdir(), 'itc-render-b-'));
+      cloudApp = createAppServer({
+        port: 0,
+        host: '127.0.0.1',
+        dataDir: dirB,
+        backupDir: path.join(dirB, 'backups'),
+        dbPath: path.join(dirB, 'runtime.sqlite'),
+        pgPool: mockPgPool,
+        disableScheduledBackup: true
+      });
+      try {
+        const c2 = await cloudApp.start();
+        const url2 = `http://127.0.0.1:${c2.port}`;
+
+        // Existing session token STILL works & record survived total local disk wipe!
+        const fetched = await reqJson(url2, 'GET', `/api/registrations/${regId}`, { token: tok });
+        assert.strictEqual(fetched.status, 200);
+        assert.strictEqual(fetched.data.record.full_name, 'Thí sinh Cloud Vĩnh Viễn');
+
+        // Download backup created on Container #1 -> fetched directly from PostgreSQL itc_backups!
+        const dlBkp = await reqJson(url2, 'GET', `/api/backup/${bkpName}/download`, { token: tok });
+        assert.strictEqual(dlBkp.status, 200);
+        assert.ok(dlBkp.raw.toString('utf8').includes('Thí sinh Cloud Vĩnh Viễn'));
+
+        // Restore from PostgreSQL backup by filename works even though local dirB/backups is empty!
+        const rstCloud = await reqJson(url2, 'POST', '/api/backup/restore', {
+          token: tok,
+          body: { filename: bkpName, dryRun: false, confirmPin: ADMIN_PIN }
+        });
+        assert.strictEqual(rstCloud.status, 200);
+      } finally {
+        await cloudApp.stop();
+        fs.rmSync(dirB, { recursive: true, force: true });
+      }
+
+      return `Render disk wipe survived (rev #${pgState.row.rev}), PG failure rolled back with 500, PG backups downloadable & restorable`;
+    });
+
+    console.log(`\n=== KET QUA: ${results.filter(r => r.pass).length}/17 TINH HUONG NGHIEM THU DAT 100% ===\n`);
   } finally {
     try { await app.stop(); } catch (_) {}
     try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch (_) {}
